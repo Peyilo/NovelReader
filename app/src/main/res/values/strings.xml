@@ -1,0 +1,21 @@
+<resources>
+    <!--软件名称-->
+    <string name="app_name">书源</string>
+
+    <!--主页导航栏文字-->
+    <string name="nav_bookshelf">书架</string>
+    <string name="nav_me">我的</string>
+
+    <!--书架界面-->
+    <string name="bookshelf_filter">筛选</string>
+    <string name="bookshelf_search_bar">搜索</string>
+    <string name="bookshelf_filter_title">书架筛选</string>
+
+    <!--描述类字符串-->
+    <string name="des_book_cover">书籍封面</string>
+    <string name="des_bookshelf_item_manage">书本管理按钮</string>
+    <string name="des_back">返回键</string>
+    <string name="des_read_history">阅读历史记录</string>
+    <string name="des_bookshelf_menu_btn">书架菜单按钮</string>
+
+</resources>
