@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import org.anvei.novelreader.R
+import org.anvei.novelreader.activity.NovelHomeActivity
 import org.anvei.novelreader.activity.ReadActivity
 
 class MeFragment : Fragment() {
@@ -19,6 +20,9 @@ class MeFragment : Fragment() {
         val view =  inflater.inflate(R.layout.fragment_me, container, false)
         view.findViewById<Button>(R.id.test1).setOnClickListener {
             startActivity(Intent(activity, ReadActivity::class.java))
+        }
+        view.findViewById<Button>(R.id.test2).setOnClickListener {
+            startActivity(Intent(activity, NovelHomeActivity::class.java))
         }
         return view
     }

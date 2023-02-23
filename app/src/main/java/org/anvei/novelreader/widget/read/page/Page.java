@@ -7,6 +7,9 @@ public class Page {
 
     private final List<Line> lineList;
 
+    private boolean isFirstPage = false;
+    private boolean isLoading = false;
+
     public Page() {
         this.lineList = new ArrayList<>();
     }
@@ -33,4 +36,19 @@ public class Page {
         add(line);
     }
 
+    public boolean isFirstPage() {
+        return isFirstPage;
+    }
+
+    public void setIsFirstPage(boolean firstPage) {
+        isFirstPage = firstPage;
+    }
+
+    public boolean isLoading() {
+        return isLoading;
+    }
+
+    public void setIsLoading(boolean loading) {
+        isLoading = loading;
+    }
 }

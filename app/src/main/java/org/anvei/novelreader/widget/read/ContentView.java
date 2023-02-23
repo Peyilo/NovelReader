@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import org.anvei.novelreader.widget.read.page.Page;
@@ -14,6 +15,7 @@ import org.anvei.novelreader.widget.read.page.PageConfig;
  */
 public class ContentView extends View {
 
+    private static final String TAG = "ContentView";
     private Page page;
     private Bitmap bitmap;
     private boolean needRecreate = false;
@@ -34,6 +36,7 @@ public class ContentView extends View {
     }
 
     public void requestReCreate() {
+        Log.d(TAG, "requestReCreate: called");
         needRecreate = true;
         postInvalidate();
     }
@@ -50,15 +53,15 @@ public class ContentView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (page != null) {
-            if (bitmap == null || needRecreate) {
-                if (pageConfig.width == 0 || pageConfig.height == 0) {
-                    pageConfig.width = getWidth();
-                    pageConfig.height = getHeight();
-                }
+            if (pageConfig.width == 0 || pageConfig.height == 0) {
+                pageConfig.width = getWidth();
+                pageConfig.height = getHeight();
+            }
+            if (needRecreate) {
+                needRecreate = false;
                 bitmap = pageConfig.pageFactory.createPage(this.page);
-                if (needRecreate) {
-                    needRecreate = false;
-                }
+            } else if (bitmap == null) {
+                bitmap = pageConfig.pageFactory.createPage(this.page);
             }
             canvas.drawBitmap(bitmap, 0F, 0F, pageConfig.paint);
         }

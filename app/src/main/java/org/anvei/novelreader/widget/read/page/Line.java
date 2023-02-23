@@ -31,6 +31,17 @@ public class Line {
             add(ch);
         }
     }
+    private String lineStr = null;
+    public String getLineStr() {
+        if (lineStr == null) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (Character c : charList) {
+                stringBuilder.append(c);
+            }
+            lineStr = stringBuilder.toString();
+        }
+        return lineStr;
+    }
 
     public int size() {
         return charList.size();

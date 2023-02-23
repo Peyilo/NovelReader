@@ -3,6 +3,7 @@ package org.anvei.novelreader.widget.read.page;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,16 +16,21 @@ public class PageFactory {
     }
 
     public List<Page> splitPage(String content) {
+        if (TextUtils.isEmpty(content)) {
+            content = "  带加载中...";
+        }
         List<Page> pages = new ArrayList<>();
         String[] splits = content.split("\\n");
-        final int width = pageConfig.width - pageConfig.paddingLeft - pageConfig.paddingRight;
-        final int height = pageConfig.height - pageConfig.paddingTop - pageConfig.paddingBottom;
-        int remainedHeight = height; // 剩余的高度
-        int remainedWidth = width; // 剩余的宽度
+        final int WIDTH = pageConfig.width - pageConfig.paddingLeft - pageConfig.paddingRight;
+        final int HEIGHT = pageConfig.height - pageConfig.paddingTop - pageConfig.paddingBottom
+                - pageConfig.headerHeight - pageConfig.footerHeight;
+        int remainedHeight = HEIGHT - pageConfig.titleHeight; // 剩余的高度
+        int remainedWidth = WIDTH; // 剩余的宽度
         float textSize = pageConfig.getTextSize();   // 字符大小
         Paint paint = pageConfig.getTextPaint();
         Page page = new Page();
         Line line = new Line();
+        boolean isFirst = true;
         float dimen;
         for (String split : splits) {
             // 去除空行
@@ -41,12 +47,16 @@ public class PageFactory {
                     // 剩余的宽度已经不足以再填充当前字符，所以需要重新new一个Line
                     page.add(line);
                     line = new Line();
-                    remainedWidth = width;
+                    remainedWidth = WIDTH;
                     remainedHeight -= textSize + pageConfig.lineMargin;
                     if (remainedHeight < textSize) {
+                        if (isFirst) {
+                            page.setIsFirstPage(true);
+                            isFirst = false;
+                        }
                         pages.add(page);
                         page = new Page();
-                        remainedHeight = height;
+                        remainedHeight = HEIGHT;
                     }
                 }
                 line.add(c);
@@ -55,17 +65,27 @@ public class PageFactory {
                     line.setIsParaEndLine(true);
                     page.add(line);
                     line = new Line();
-                    remainedWidth = width;
+                    remainedWidth = WIDTH;
                     remainedHeight -= textSize + pageConfig.lineMargin + pageConfig.paraMargin;
                     if (remainedHeight < textSize) {
+                        if (isFirst) {
+                            page.setIsFirstPage(true);
+                            isFirst = false;
+                        }
                         pages.add(page);
                         page = new Page();
-                        remainedHeight = height;
+                        remainedHeight = HEIGHT;
                     }
                     break;
                 }
                 remainedWidth -= dimen + pageConfig.textMargin;
             }
+        }
+        if (pages.size() == 0) {
+            if (isFirst) {
+                page.setIsFirstPage(true);
+            }
+            pages.add(page);
         }
         if (page.size() != 0) {
             pages.add(page);

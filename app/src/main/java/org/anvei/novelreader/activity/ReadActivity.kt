@@ -2,12 +2,11 @@ package org.anvei.novelreader.activity
 
 import android.os.Bundle
 import android.util.Log
+import androidx.core.view.GravityCompat
+import androidx.core.view.postDelayed
+import androidx.drawerlayout.widget.DrawerLayout
 import org.anvei.novel.api.SfacgAPI
-import org.anvei.novelreader.bean.Book
-import org.anvei.novelreader.bean.Chapter
-import org.anvei.novelreader.bean.IndexBean
-import org.anvei.novelreader.bean.Volume
-import org.anvei.novelreader.bean.VolumeBook
+import org.anvei.novelreader.bean.*
 import org.anvei.novelreader.databinding.ActivityReadBinding
 import org.anvei.novelreader.util.StatusBarUtils
 import org.anvei.novelreader.widget.read.ReadView
@@ -21,6 +20,10 @@ class ReadActivity : BaseActivity() {
         setContentView(binding.root)
         StatusBarUtils.requestFullScreen(window, binding.root, true, true) // 沉浸式状态栏
         val api = SfacgAPI()
+        binding.readView.setOnClickListener {
+            // binding.readDrawer.openDrawer(GravityCompat.START)
+        }
+        binding.readDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         binding.readView.openBook(object : ReadView.BookLoader {
             override fun getBook(): Book {
                 val chapListJson = api.getChapListJson(591785)
@@ -54,7 +57,8 @@ class ReadActivity : BaseActivity() {
                 }
 
             }
-        }, 2, 1)
+        }, 10, 1)
+
     }
 
     override fun onDestroy() {

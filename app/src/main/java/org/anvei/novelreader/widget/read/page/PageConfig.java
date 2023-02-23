@@ -15,12 +15,15 @@ public class PageConfig {
     public Paint paint = new Paint();
     public int width;
     public int height;
+    public int headerHeight;
+    public int footerHeight;
+    public int titleHeight;
 
     // 内边距
-    public int paddingLeft = 30;
     public int paddingBottom = 40;
-    public int paddingTop = 20;
-    public int paddingRight = 30;
+    public int paddingTop = 30;
+    public int paddingLeft = 40;
+    public int paddingRight = 40;
 
     private int textColor = Color.parseColor("#4a453a");
     private final Paint textPaint;

@@ -15,6 +15,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NovelReader"
         tools:targetApi="31">
+        <activity android:name=".activity.NovelHomeActivity"
+            android:exported="false"/>
         <activity
             android:name=".activity.ReadActivity"
             android:exported="false">

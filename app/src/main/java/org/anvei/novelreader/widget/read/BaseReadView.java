@@ -63,7 +63,6 @@ public abstract class BaseReadView<E extends View> extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
         // 设置view的测量大小
@@ -92,7 +91,7 @@ public abstract class BaseReadView<E extends View> extends ViewGroup {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (scroller.isFinished() && ev.getAction() == MotionEvent.ACTION_DOWN) {
+        if (!isScrolling() && ev.getAction() == MotionEvent.ACTION_DOWN) {
             startX = ev.getX();
         }
         return super.dispatchTouchEvent(ev);
@@ -101,7 +100,7 @@ public abstract class BaseReadView<E extends View> extends ViewGroup {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         performClick();
-        if (!scroller.isFinished()) {
+        if (isScrolling()) {
             return super.onTouchEvent(event);
         }
         switch (event.getAction()) {
@@ -232,4 +231,7 @@ public abstract class BaseReadView<E extends View> extends ViewGroup {
         void onPre();
     }
 
+    protected boolean isScrolling() {
+        return !scroller.isFinished();
+    }
 }

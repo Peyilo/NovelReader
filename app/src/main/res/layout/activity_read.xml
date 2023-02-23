@@ -3,19 +3,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.ReadActivity">
+    tools:context=".activity.ReadActivity"
+    android:id="@+id/read_drawer">
 
-    <org.anvei.novelreader.widget.read.ReadView
-        android:id="@+id/read_view"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="30dp" />
+        android:layout_height="match_parent">
+        <org.anvei.novelreader.widget.read.ReadView
+            android:id="@+id/read_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="30dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
-
+        android:orientation="vertical"
+        android:layout_gravity="start"
+        android:background="@color/white">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/read_chap_list_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
     </LinearLayout>
 
 
