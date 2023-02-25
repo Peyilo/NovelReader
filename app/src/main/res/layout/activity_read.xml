@@ -9,11 +9,13 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <org.anvei.novelreader.widget.readview.ReadView
             android:id="@+id/read_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="30dp" />
+            android:layout_marginTop="@dimen/status_bar_height" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
@@ -21,7 +23,8 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:layout_gravity="start"
-        android:background="@color/white">
+        android:background="@color/white"
+        android:paddingTop="@dimen/status_bar_height">
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/read_chap_list_recycler"
             android:layout_width="match_parent"

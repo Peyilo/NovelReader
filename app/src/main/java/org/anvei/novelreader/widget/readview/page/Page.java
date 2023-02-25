@@ -7,6 +7,8 @@ public class Page {
 
     private final List<Line> lineList;
 
+    private String title;
+
     private boolean isFirstPage = false;
     private boolean isLoading = false;
 
@@ -50,5 +52,13 @@ public class Page {
 
     public void setIsLoading(boolean loading) {
         isLoading = loading;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

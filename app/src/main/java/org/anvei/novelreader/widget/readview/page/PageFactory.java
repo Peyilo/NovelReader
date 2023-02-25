@@ -18,18 +18,21 @@ public class PageFactory {
     }
 
     public @NonNull List<Page> splitPage(String content) {
-        return splitPage(content, "  待加载中...");
+        return splitPage(content, null);
     }
 
+    public @NonNull List<Page> splitPage(String content, String title) {
+        return splitPage(content, title, "  待加载中...");
+    }
     /**
      * 切割指定字符串
      * @param content 待切割字符串
-     * @param message 如果content为空字符串，就返回一个由给定的message生成的字符串
+     * @param replace 如果content为空字符串，就返回一个由给定的replace生成的字符串
      * @return 页面数据列表
      */
-    public @NonNull List<Page> splitPage(String content, String message) {
+    public @NonNull List<Page> splitPage(String content, String title, String replace) {
         if (TextUtils.isEmpty(content)) {
-            content = message;
+            content = replace;
         }
         List<Page> pages = new ArrayList<>();
         String[] splits = content.split("\\n");
@@ -62,8 +65,9 @@ public class PageFactory {
                     remainedWidth = WIDTH;
                     remainedHeight -= textSize + pageConfig.lineMargin;
                     if (remainedHeight < textSize) {
-                        if (isFirst) {
+                        if (title != null && isFirst) {
                             page.setIsFirstPage(true);
+                            page.setTitle(title);
                             isFirst = false;
                         }
                         pages.add(page);

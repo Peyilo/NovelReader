@@ -100,7 +100,7 @@ public abstract class FlipLayout extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        performClick();
+        // 父类的方法中包含了点击监听相关代码，需要调用以支持点击监听
         final float distance = startX - event.getX();
         switch (event.getAction()) {
             case MotionEvent.ACTION_MOVE:
@@ -126,7 +126,7 @@ public abstract class FlipLayout extends ViewGroup {
                         scrolledView.scrollTo(getWidth() + (int) distance, 0);
                     }
                 }
-                break;
+                return true;
             case MotionEvent.ACTION_UP:
                 if (initialDirection != PageDirection.NONE) {
                     int scrollX = scrolledView.getScrollX();
@@ -177,10 +177,10 @@ public abstract class FlipLayout extends ViewGroup {
                             addView(newView);
                         }
                     }
+                    return true;
                 }
-                break;
         }
-        return true;
+        return super.onTouchEvent(event);
     }
 
     @Override

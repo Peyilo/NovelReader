@@ -29,6 +29,10 @@ public class Book {
         return chapters.get(index - 1);
     }
 
+    public List<Chapter> getChapters() {
+        return chapters;
+    }
+
     // 获取章节总数
     public int getChapterCount() {
         return chapters.size();

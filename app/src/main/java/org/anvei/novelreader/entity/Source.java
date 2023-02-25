@@ -1,5 +1,5 @@
 package org.anvei.novelreader.entity;
 
-public class Source {
-
+public enum Source {
+    SfacgAPP
 }

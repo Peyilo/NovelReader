@@ -14,6 +14,7 @@ import org.anvei.novelreader.bean.Chapter;
 import org.anvei.novelreader.widget.readview.flip.FlipLayout;
 import org.anvei.novelreader.widget.readview.flip.PageDirection;
 import org.anvei.novelreader.widget.readview.interfaces.TaskListener;
+import org.anvei.novelreader.widget.readview.loader.BookLoader;
 import org.anvei.novelreader.widget.readview.page.Page;
 import org.anvei.novelreader.widget.readview.page.PageConfig;
 import org.anvei.novelreader.widget.readview.page.PageFactory;
@@ -28,6 +29,7 @@ import javax.security.auth.DestroyFailedException;
 public class ReadView extends FlipLayout {
 
     private static final String TAG = "ReadView";
+
     private PageConfig pageConfig;
     private PageFactory pageFactory;
     private Book book;
@@ -46,6 +48,8 @@ public class ReadView extends FlipLayout {
     private int preLoadBefore = 2;          // 预加载当前章节之前的两章节
     private int preLoadBehind = 2;          // 预加载当前章节之后的一章节
 
+    private OnLoadListener onLoadListener;
+
     public ReadView(Context context, AttributeSet attrs) {
         super(context, attrs);
         addOnFlipOverListener(new OnFlipListener() {
@@ -57,7 +61,6 @@ public class ReadView extends FlipLayout {
                 } else {
                     pageIndex++;
                 }
-                Log.d(TAG, "onNext: chapter" + chapterIndex + ", page" + pageIndex);
             }
             @Override
             public void onPre() {
@@ -67,11 +70,11 @@ public class ReadView extends FlipLayout {
                 } else {
                     pageIndex--;
                 }
-                Log.d(TAG, "onPre: chapter" + chapterIndex + ", page" + pageIndex);
             }
         });
         for (int i = 0; i < 3; i++) {
-            addView(createChildView());
+            ReadPage childView = createChildView();
+            addView(childView);
         }
         setCurPagePointer(1);
     }
@@ -132,12 +135,16 @@ public class ReadView extends FlipLayout {
         return true;
     }
 
-    // 当前章节是否是最后一章节
+    /**
+     * 当前章节是否是最后一章节
+     */
     public boolean isLastChapter() {
         return chapterIndex == getChapterCount();
     }
 
-    // 当前章节是否是第一章
+    /**
+     * 当前章节是否是第一章
+     */
     public boolean isFirstChapter() {
         return chapterIndex == 1;
     }
@@ -152,7 +159,7 @@ public class ReadView extends FlipLayout {
                     if (nextPage == null) {
                         refresh(NEXT_PAGE);
                     }
-                    ((ReadPage) convertView).getContentView().setPage(nextPage, null);
+                    ((ReadPage) convertView).setPage(nextPage);
                 }
                 break;
             case TO_PREV:
@@ -161,7 +168,7 @@ public class ReadView extends FlipLayout {
                     if (page == null) {
                         refresh(PRE_PAGE);
                     }
-                    ((ReadPage) convertView).getContentView().setPage(page, null);
+                    ((ReadPage) convertView).setPage(page);
                 }
                 break;
         }
@@ -188,37 +195,24 @@ public class ReadView extends FlipLayout {
         this.chapterIndex = chapterIndex;
         this.pageIndex = pageIndex;
         startTask(() -> {
-            book = bookLoader.getBook();    // 先加载完目录信息
+            book = bookLoader.getBook();         // 先加载完目录信息
             preLoad(chapterIndex);
             int count = book.getChapterCount();
-            if (chapterIndex == -1) {
+            if (chapterIndex == THE_LAST) {     // 处理-1，将其设置为最后一章
                 this.chapterIndex = count;
             }
             // 加载当前章节
             Chapter curChapter = book.getChapter(this.chapterIndex);
             bookLoader.loadChapter(curChapter);
+            // 切割章节需要视图的宽度和高度，需要在主线程执行
             post(() -> {
                 pageConfig.width = ((ReadPage) getPageView(0)).contentView.getWidth();
                 pageConfig.height = ((ReadPage) getPageView(0)).contentView.getHeight();
+                pageConfig.titleHeight = ((ReadPage) getPageView(-1)).getTitleHeight();
                 curChapter.setPages(pageFactory.splitPage(curChapter.getContent()));
-                ((ReadPage) getPageView(0)).getContentView().setPage(getCurPage(), null);
-                if (hasNextPage()) {
-                    Log.d(TAG, "openBook: init hasNextPage = " + true);
-                    Page nextPage = getNextPage();
-                    if (nextPage == null) {
-                        Log.d(TAG, "openBook: init need refresh NEXT_PAGE");
-                        refresh(NEXT_PAGE);
-                    }
-                    ((ReadPage) getPageView(1)).getContentView().setPage(nextPage, null);
-                }
-                if (hasPrePage()) {
-                    Log.d(TAG, "openBook: init hasPrePage = " + true);
-                    Page prePage = getPrePage();
-                    if (prePage == null) {
-                        Log.d(TAG, "openBook: init need refresh PRE_PAGE");
-                        refresh(PRE_PAGE);
-                    }
-                    ((ReadPage) getPageView(-1)).getContentView().setPage(prePage, null);
+                refresh();
+                if (onLoadListener != null) {
+                    onLoadListener.onLoadFinished(book);
                 }
             });
         });
@@ -288,7 +282,7 @@ public class ReadView extends FlipLayout {
                 pageConfig.height = getHeight();
                 chapter.setPages(pageFactory.splitPage(chapter.getContent()));
                 Log.d(TAG, "requestLoadChapter: load chapter " + chapterIndex);
-                requestRefreshPage();
+                refresh();
             });
         }
         preLoad(chapterIndex);
@@ -310,32 +304,47 @@ public class ReadView extends FlipLayout {
         }
     }
 
+    public void refresh() {
+        ((ReadPage) getPageView(0)).setPage(getCurPage());
+        if (hasNextPage()) {
+            Page nextPage = getNextPage();
+            if (nextPage == null) {
+                refresh(NEXT_PAGE);
+            }
+            ((ReadPage) getPageView(1)).setPage(nextPage);
+        }
+        if (hasPrePage()) {
+            Page prePage = getPrePage();
+            if (prePage == null) {
+                refresh(PRE_PAGE);
+            }
+            ((ReadPage) getPageView(-1)).setPage(prePage);
+        }
+    }
     // 请求刷新页面
     public void requestRefreshPage() {
-        post(() -> {
-            for (int i = 0; i < needRefreshedPage.length; i++) {
-                ReadPage readPage = (ReadPage) needRefreshedPage[i];
-                if (readPage != null) {
-                    Page page;
-                    String log;
-                    if (i == PRE_PAGE) {
-                        log = "PRE_PAGE";
-                        page = getPrePage();
-                    } else if (i == CUR_PAGE) {
-                        log = "CUR_PAGE";
-                        page = getCurPage();
-                    } else {
-                        log = "NEXT_PAGE";
-                        page = getNextPage();
-                    }
-                    Log.d(TAG, "requestRefreshPage: refresh " + log);
-                    readPage.getContentView().setPage(page, null);
-                    if (page != null) {
-                        needRefreshedPage[i] = null;
-                    }
+        for (int i = 0; i < needRefreshedPage.length; i++) {
+            ReadPage readPage = (ReadPage) needRefreshedPage[i];
+            if (readPage != null) {
+                Page page;
+                String log;
+                if (i == PRE_PAGE) {
+                    log = "PRE_PAGE";
+                    page = getPrePage();
+                } else if (i == CUR_PAGE) {
+                    log = "CUR_PAGE";
+                    page = getCurPage();
+                } else {
+                    log = "NEXT_PAGE";
+                    page = getNextPage();
+                }
+                Log.d(TAG, "requestRefreshPage: refresh " + log);
+                readPage.setPage(page);
+                if (page != null) {
+                    needRefreshedPage[i] = null;
                 }
             }
-        });
+        }
     }
 
     /**
@@ -396,14 +405,6 @@ public class ReadView extends FlipLayout {
         }
     }
 
-    public interface BookLoader {
-        // 该方法需要完成小说目录的加载
-        Book getBook();
-        // 加载指定章节
-        void loadChapter(Chapter chapter);
-
-    }
-
     public void destroy() {
         for (Task task : taskList) {
             if (task != null) {
@@ -442,9 +443,6 @@ public class ReadView extends FlipLayout {
     public void jumpToChapter(@IntRange(from = 1) int chapterIndex) {
         this.chapterIndex = chapterIndex;
         this.pageIndex = 1;
-        refresh(CUR_PAGE);
-        refresh(PRE_PAGE);
-        refresh(NEXT_PAGE);
         requestLoadChapter(chapterIndex);
     }
 
@@ -514,6 +512,14 @@ public class ReadView extends FlipLayout {
 
     protected void startTask(Runnable task) {
         startTask(task, null);
+    }
+
+    public void setOnLoadListener(OnLoadListener onLoadListener) {
+        this.onLoadListener = onLoadListener;
+    }
+
+    public interface OnLoadListener {
+        void onLoadFinished(Book book);
     }
 
 }

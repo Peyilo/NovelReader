@@ -53,7 +53,12 @@ class ReadPage(context: Context, attributeSet: AttributeSet?) : ViewGroup(contex
     }
 
     fun showTitleView(show: Boolean) {
-        titleView?.visibility = if (show) VISIBLE else GONE
+        titleView?.apply {
+            // 是由可见性改变才继续赋值
+            if (!show && visibility == VISIBLE || show && visibility == GONE) {
+                visibility = if (show) VISIBLE else GONE
+            }
+        }
     }
 
     fun setView(view: Int) {
@@ -65,5 +70,19 @@ class ReadPage(context: Context, attributeSet: AttributeSet?) : ViewGroup(contex
             return titleView!!.height
         }
         return 0;
+    }
+
+    fun setPage(page: Page?) {
+        contentView.setPage(page)
+        /*if (page != null) {
+            if (page.isFirstPage) {
+                titleView?.apply {
+                    findViewById<TextView>(R.id.page_title_text).text = page.title
+                }
+                showTitleView(true)
+            } else {
+                showTitleView(false)
+            }
+        }*/
     }
 }

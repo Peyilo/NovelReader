@@ -30,9 +30,11 @@ public class ContentView extends View {
         super(context, attrs);
     }
 
-    public void setPage(Page page, String mes) {
-        this.page = page;
-        requestReCreate();
+    public void setPage(Page page) {
+        if (this.page == null || !this.page.equals(page)) {
+            this.page = page;
+            requestReCreate();
+        }
     }
 
     public void requestReCreate() {
