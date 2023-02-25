@@ -1,6 +1,6 @@
 package org.anvei.novelreader.bean;
 
-import org.anvei.novelreader.widget.read.page.Page;
+import org.anvei.novelreader.widget.readview.page.Page;
 
 import java.util.List;
 

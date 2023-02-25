@@ -1,4 +1,4 @@
-package org.anvei.novelreader.widget.read.page;
+package org.anvei.novelreader.widget.readview.page;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -12,7 +12,7 @@ public class PageConfig {
         textPaint.setTextSize(textSize);
     }
 
-    public Paint paint = new Paint();
+    public Paint bitmapPaint = new Paint();
     public int width;
     public int height;
     public int headerHeight;

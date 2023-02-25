@@ -9,7 +9,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <org.anvei.novelreader.widget.read.ReadView
+        <org.anvei.novelreader.widget.readview.ReadView
             android:id="@+id/read_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

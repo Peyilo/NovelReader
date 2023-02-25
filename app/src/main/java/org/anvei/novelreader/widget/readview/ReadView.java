@@ -1,8 +1,9 @@
-package org.anvei.novelreader.widget.read;
+package org.anvei.novelreader.widget.readview;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
@@ -10,10 +11,13 @@ import androidx.annotation.Nullable;
 import org.anvei.novelreader.R;
 import org.anvei.novelreader.bean.Book;
 import org.anvei.novelreader.bean.Chapter;
-import org.anvei.novelreader.widget.read.interfaces.TaskListener;
-import org.anvei.novelreader.widget.read.page.Page;
-import org.anvei.novelreader.widget.read.page.PageConfig;
-import org.anvei.novelreader.widget.read.page.PageFactory;
+import org.anvei.novelreader.widget.readview.flip.FlipLayout;
+import org.anvei.novelreader.widget.readview.flip.PageDirection;
+import org.anvei.novelreader.widget.readview.interfaces.TaskListener;
+import org.anvei.novelreader.widget.readview.page.Page;
+import org.anvei.novelreader.widget.readview.page.PageConfig;
+import org.anvei.novelreader.widget.readview.page.PageFactory;
+import org.anvei.novelreader.widget.readview.utils.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +25,7 @@ import java.util.Objects;
 
 import javax.security.auth.DestroyFailedException;
 
-public class ReadView extends BaseReadView<ReadPage> {
+public class ReadView extends FlipLayout {
 
     private static final String TAG = "ReadView";
     private PageConfig pageConfig;
@@ -30,7 +34,7 @@ public class ReadView extends BaseReadView<ReadPage> {
     private BookLoader bookLoader;
     private final List<Task> taskList = new ArrayList<>();
     // 待刷新的视图
-    private final ReadPage[] needRefreshedPage = new ReadPage[3];
+    private final View[] needRefreshedPage = new View[3];
     public static final int PRE_PAGE = 0x00;
     public static final int CUR_PAGE = 0x01;
     public static final int NEXT_PAGE = 0x02;
@@ -40,11 +44,11 @@ public class ReadView extends BaseReadView<ReadPage> {
     public static final int THE_LAST = -1;
 
     private int preLoadBefore = 2;          // 预加载当前章节之前的两章节
-    private int preLoadBehind = 1;          // 预加载当前章节之后的一章节
+    private int preLoadBehind = 2;          // 预加载当前章节之后的一章节
 
     public ReadView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        addOnFlipOverListener(new OnFlipOverListener() {
+        addOnFlipOverListener(new OnFlipListener() {
             @Override
             public void onNext() {
                 if (pageIndex == getPageCount()) {
@@ -66,10 +70,13 @@ public class ReadView extends BaseReadView<ReadPage> {
                 Log.d(TAG, "onPre: chapter" + chapterIndex + ", page" + pageIndex);
             }
         });
+        for (int i = 0; i < 3; i++) {
+            addView(createChildView());
+        }
+        setCurPagePointer(1);
     }
 
-    @Override
-    protected ReadPage createChildView() {
+    private ReadPage createChildView() {
         if (pageConfig == null) {
             pageConfig = new PageConfig();
             pageFactory = new PageFactory(pageConfig);
@@ -90,6 +97,9 @@ public class ReadView extends BaseReadView<ReadPage> {
      */
     @Override
     protected boolean hasNextPage() {
+        if (book == null) {
+            return false;
+        }
         Chapter chapter = book.getChapter(chapterIndex);
         if (chapter.getStatus() != Chapter.Status.INITIALIZED) {
             requestLoadChapter(chapterIndex);
@@ -108,6 +118,9 @@ public class ReadView extends BaseReadView<ReadPage> {
      */
     @Override
     protected boolean hasPrePage() {
+        if (book == null) {
+            return false;
+        }
         Chapter chapter = book.getChapter(chapterIndex);
         if (chapter.getStatus() != Chapter.Status.INITIALIZED) {
             requestLoadChapter(chapterIndex);
@@ -130,29 +143,29 @@ public class ReadView extends BaseReadView<ReadPage> {
     }
 
     @Override
-    protected ReadPage getView(ReadPage cacheView, Direction direction) {
+    protected View getView(View convertView, PageDirection direction) {
         switch (direction) {
-            case TO_LEFT:
+            case TO_NEXT:
                 if (hasNextPage()) {
                     // 这里返回的nextPage可能为null，是因为这里已经在加载下一章节，但是加载需要时间
                     Page nextPage = getNextPage();
                     if (nextPage == null) {
                         refresh(NEXT_PAGE);
                     }
-                    cacheView.getContentView().setPage(nextPage);
+                    ((ReadPage) convertView).getContentView().setPage(nextPage, null);
                 }
                 break;
-            case TO_RIGHT:
+            case TO_PREV:
                 if (hasPrePage()) {
                     Page page = getPrePage();
                     if (page == null) {
                         refresh(PRE_PAGE);
                     }
-                    cacheView.getContentView().setPage(page);
+                    ((ReadPage) convertView).getContentView().setPage(page, null);
                 }
                 break;
         }
-        return cacheView;
+        return convertView;
     }
 
     /**
@@ -176,6 +189,7 @@ public class ReadView extends BaseReadView<ReadPage> {
         this.pageIndex = pageIndex;
         startTask(() -> {
             book = bookLoader.getBook();    // 先加载完目录信息
+            preLoad(chapterIndex);
             int count = book.getChapterCount();
             if (chapterIndex == -1) {
                 this.chapterIndex = count;
@@ -184,46 +198,28 @@ public class ReadView extends BaseReadView<ReadPage> {
             Chapter curChapter = book.getChapter(this.chapterIndex);
             bookLoader.loadChapter(curChapter);
             post(() -> {
-                pageConfig.width = getWidth();
-                pageConfig.height = getHeight();
-                pageConfig.titleHeight = curView.getTitleHeight();
-                Chapter chapter = book.getChapter(chapterIndex);
-                chapter.setPages(pageFactory.splitPage(chapter.getContent()));
-                curView.getContentView().setPage(getCurPage());
-                boolean flag1 = false;
-                boolean flag2 = false;
+                pageConfig.width = ((ReadPage) getPageView(0)).contentView.getWidth();
+                pageConfig.height = ((ReadPage) getPageView(0)).contentView.getHeight();
+                curChapter.setPages(pageFactory.splitPage(curChapter.getContent()));
+                ((ReadPage) getPageView(0)).getContentView().setPage(getCurPage(), null);
                 if (hasNextPage()) {
                     Log.d(TAG, "openBook: init hasNextPage = " + true);
                     Page nextPage = getNextPage();
                     if (nextPage == null) {
                         Log.d(TAG, "openBook: init need refresh NEXT_PAGE");
-                        flag1 = true;
+                        refresh(NEXT_PAGE);
                     }
-                    nextView.getContentView().setPage(nextPage);
+                    ((ReadPage) getPageView(1)).getContentView().setPage(nextPage, null);
                 }
                 if (hasPrePage()) {
                     Log.d(TAG, "openBook: init hasPrePage = " + true);
                     Page prePage = getPrePage();
                     if (prePage == null) {
                         Log.d(TAG, "openBook: init need refresh PRE_PAGE");
-                        flag2 = true;
+                        refresh(PRE_PAGE);
                     }
-                    preView.getContentView().setPage(prePage);
+                    ((ReadPage) getPageView(-1)).getContentView().setPage(prePage, null);
                 }
-                boolean finalFlag1 = flag1;
-                boolean finalFlag2 = flag2;
-                preLoad(this.chapterIndex, new TaskListener() {
-                    @Override
-                    public void onSuccess() {
-                        if (finalFlag1) {
-                            refresh(NEXT_PAGE);
-                        }
-                        if (finalFlag2) {
-                            refresh(PRE_PAGE);
-                        }
-                        requestRefreshPage();
-                    }
-                });     // 预加载
             });
         });
     }
@@ -270,20 +266,18 @@ public class ReadView extends BaseReadView<ReadPage> {
             if (pageIndex == -1) {
                 pageIndex = chapter.getPages().size();
             }
-            return chapter.getPages().get(pageIndex - 1);
+            if (pageIndex > 0) {
+                return chapter.getPages().get(pageIndex - 1);
+            }
         }
         requestLoadChapter(chapterIndex);
         return null;
     }
 
-    protected void requestLoadChapter(int chapterIndex) {
-        requestLoadChapter(chapterIndex, null);
-    }
-
     /**
      * 请求加载指定章节，并完成章节分页
      */
-    protected synchronized void requestLoadChapter(int chapterIndex, @Nullable TaskListener taskListener) {
+    protected synchronized void requestLoadChapter(int chapterIndex) {
         Chapter chapter = book.getChapter(chapterIndex);
         Chapter.Status status = chapter.getStatus();
         if (status != Chapter.Status.IS_LOADING && status != Chapter.Status.INITIALIZED) {
@@ -295,20 +289,16 @@ public class ReadView extends BaseReadView<ReadPage> {
                 chapter.setPages(pageFactory.splitPage(chapter.getContent()));
                 Log.d(TAG, "requestLoadChapter: load chapter " + chapterIndex);
                 requestRefreshPage();
-            }, taskListener);
+            });
         }
         preLoad(chapterIndex);
-    }
-
-    protected void requestSplitChapter(int chapterIndex) {
-        requestSplitChapter(chapterIndex, null);
     }
 
     /**
      * 请求对指定章节进行重新分页（数据层重新分页）
      * 数据层完成分页以后还会调用requestRefreshPage()方法，刷新视图层（该方法没有开启子线程）
      */
-    protected synchronized void requestSplitChapter(int chapterIndex, @Nullable TaskListener taskListener) {
+    protected synchronized void requestSplitChapter(int chapterIndex) {
         Chapter chapter = book.getChapter(chapterIndex);
         if (chapter.getStatus() != Chapter.Status.IS_LOADING) {
             chapter.setStatus(Chapter.Status.IS_LOADING);
@@ -324,7 +314,7 @@ public class ReadView extends BaseReadView<ReadPage> {
     public void requestRefreshPage() {
         post(() -> {
             for (int i = 0; i < needRefreshedPage.length; i++) {
-                ReadPage readPage = needRefreshedPage[i];
+                ReadPage readPage = (ReadPage) needRefreshedPage[i];
                 if (readPage != null) {
                     Page page;
                     String log;
@@ -339,8 +329,10 @@ public class ReadView extends BaseReadView<ReadPage> {
                         page = getNextPage();
                     }
                     Log.d(TAG, "requestRefreshPage: refresh " + log);
-                    readPage.getContentView().setPage(page);
-                    needRefreshedPage[i] = null;
+                    readPage.getContentView().setPage(page, null);
+                    if (page != null) {
+                        needRefreshedPage[i] = null;
+                    }
                 }
             }
         });
@@ -351,17 +343,7 @@ public class ReadView extends BaseReadView<ReadPage> {
      * @param page 取值为CUR_PAGE、PRE_PAGE、NEXT_PAGE，分别对应当前页面、上一页面、下一页面
      */
     public void refresh(int page) {
-        switch (page) {
-            case PRE_PAGE:
-                needRefreshedPage[PRE_PAGE] = preView;
-                break;
-            case CUR_PAGE:
-                needRefreshedPage[CUR_PAGE] = curView;
-                break;
-            case NEXT_PAGE:
-                needRefreshedPage[NEXT_PAGE] = nextView;
-                break;
-        }
+        needRefreshedPage[PRE_PAGE] = getPageView(page - 1);
     }
 
     protected void preLoad(int chapterIndex) {
@@ -374,37 +356,44 @@ public class ReadView extends BaseReadView<ReadPage> {
     protected void preLoad(int chapterIndex, @Nullable TaskListener listener) {
         Log.d(TAG, "preLoad: called");
         startTask(() -> {
-            // 生成待加载章节列表
-            ArrayList<Integer> indexList = new ArrayList<>();
-            for (int i = chapterIndex - 1; i > 0
-                    && i >= chapterIndex - preLoadBefore; i--) {
-                indexList.add(i);
-            }
-            for (int i = chapterIndex + 1; i <= getChapterCount()
-                    && i <= chapterIndex + preLoadBehind; i++) {
-                indexList.add(i);
-            }
-            for (int i : indexList) {
-                Chapter chapter = book.getChapter(i);
-                switch (chapter.getStatus()) {
-                    case IS_LOADING:
-                    case INITIALIZED:
-                        break;
-                    case NO_CONTENT:
-                        chapter.setStatus(Chapter.Status.IS_LOADING);
-                        bookLoader.loadChapter(chapter);
-                    case NO_SPLIT:
-                        if (chapter.getStatus() == Chapter.Status.NO_CONTENT) {
-                            chapter.setStatus(Chapter.Status.IS_LOADING);
-                        }
-                        Log.d(TAG, "preLoad: load chapter " + i);
-                        List<Page> pages = pageConfig.pageFactory.splitPage(chapter.getContent());
-                        chapter.setPages(pages);
-                        break;
-                }
-            }
+            preLoadWithNoSubThread(chapterIndex, true);
             requestRefreshPage();
         }, listener);
+    }
+
+    protected void preLoadWithNoSubThread(int chapterIndex, boolean needSplit) {
+        // 生成待加载章节列表
+        ArrayList<Integer> indexList = new ArrayList<>();
+        for (int i = chapterIndex - 1; i > 0
+                && i >= chapterIndex - preLoadBefore; i--) {
+            indexList.add(i);
+        }
+        for (int i = chapterIndex + 1; i <= getChapterCount()
+                && i <= chapterIndex + preLoadBehind; i++) {
+            indexList.add(i);
+        }
+        for (int i : indexList) {
+            Chapter chapter = book.getChapter(i);
+            switch (chapter.getStatus()) {
+                case IS_LOADING:
+                case INITIALIZED:
+                    break;
+                case NO_CONTENT:
+                    chapter.setStatus(Chapter.Status.IS_LOADING);
+                    bookLoader.loadChapter(chapter);
+                    if (!needSplit) {
+                        break;
+                    }
+                case NO_SPLIT:
+                    if (chapter.getStatus() == Chapter.Status.NO_CONTENT) {
+                        chapter.setStatus(Chapter.Status.IS_LOADING);
+                    }
+                    Log.d(TAG, "preLoad: load chapter " + i);
+                    List<Page> pages = pageConfig.pageFactory.splitPage(chapter.getContent());
+                    chapter.setPages(pages);
+                    break;
+            }
+        }
     }
 
     public interface BookLoader {
@@ -412,6 +401,7 @@ public class ReadView extends BaseReadView<ReadPage> {
         Book getBook();
         // 加载指定章节
         void loadChapter(Chapter chapter);
+
     }
 
     public void destroy() {

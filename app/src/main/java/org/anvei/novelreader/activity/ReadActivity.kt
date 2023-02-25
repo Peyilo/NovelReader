@@ -2,14 +2,12 @@ package org.anvei.novelreader.activity
 
 import android.os.Bundle
 import android.util.Log
-import androidx.core.view.GravityCompat
-import androidx.core.view.postDelayed
 import androidx.drawerlayout.widget.DrawerLayout
 import org.anvei.novel.api.SfacgAPI
 import org.anvei.novelreader.bean.*
 import org.anvei.novelreader.databinding.ActivityReadBinding
 import org.anvei.novelreader.util.StatusBarUtils
-import org.anvei.novelreader.widget.read.ReadView
+import org.anvei.novelreader.widget.readview.ReadView
 
 private const val TAG = "ReadViewTest"
 class ReadActivity : BaseActivity() {

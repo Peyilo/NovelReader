@@ -25,11 +25,9 @@
             android:background="@color/black"/>
     </LinearLayout>
 
-    <org.anvei.novelreader.widget.read.ContentView
+    <org.anvei.novelreader.widget.readview.ContentView
         android:id="@+id/page_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="10dp"/>
+        android:layout_height="match_parent" />
 
 </LinearLayout>

@@ -1,9 +1,9 @@
-package org.anvei.novelreader.widget.read;
+package org.anvei.novelreader.widget.readview.utils;
 
 import androidx.annotation.Nullable;
 
-import org.anvei.novelreader.widget.read.interfaces.TaskLifecycle;
-import org.anvei.novelreader.widget.read.interfaces.TaskListener;
+import org.anvei.novelreader.widget.readview.interfaces.TaskLifecycle;
+import org.anvei.novelreader.widget.readview.interfaces.TaskListener;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

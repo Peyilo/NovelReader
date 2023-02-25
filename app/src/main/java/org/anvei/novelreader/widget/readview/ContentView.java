@@ -1,4 +1,4 @@
-package org.anvei.novelreader.widget.read;
+package org.anvei.novelreader.widget.readview;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -7,8 +7,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-import org.anvei.novelreader.widget.read.page.Page;
-import org.anvei.novelreader.widget.read.page.PageConfig;
+import org.anvei.novelreader.widget.readview.page.Page;
+import org.anvei.novelreader.widget.readview.page.PageConfig;
 
 /**
  * 负责绘制章节内容主题内容
@@ -30,7 +30,7 @@ public class ContentView extends View {
         super(context, attrs);
     }
 
-    public void setPage(Page page) {
+    public void setPage(Page page, String mes) {
         this.page = page;
         requestReCreate();
     }
@@ -52,18 +52,19 @@ public class ContentView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        pageConfig.width = getWidth();
+        pageConfig.height = getHeight();
         if (page != null) {
-            if (pageConfig.width == 0 || pageConfig.height == 0) {
-                pageConfig.width = getWidth();
-                pageConfig.height = getHeight();
-            }
             if (needRecreate) {
                 needRecreate = false;
                 bitmap = pageConfig.pageFactory.createPage(this.page);
             } else if (bitmap == null) {
                 bitmap = pageConfig.pageFactory.createPage(this.page);
             }
-            canvas.drawBitmap(bitmap, 0F, 0F, pageConfig.paint);
+            canvas.drawBitmap(bitmap, 0F, 0F, pageConfig.bitmapPaint);
+        } else {
+            Log.d(TAG, "onDraw: needRecreate " + needRecreate);
+            canvas.drawBitmap(pageConfig.getBackground(), 0F, 0F, pageConfig.bitmapPaint);
         }
     }
 }

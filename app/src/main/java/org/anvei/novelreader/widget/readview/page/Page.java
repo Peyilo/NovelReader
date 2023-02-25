@@ -1,4 +1,4 @@
-package org.anvei.novelreader.widget.read.page;
+package org.anvei.novelreader.widget.readview.page;
 
 import java.util.ArrayList;
 import java.util.List;

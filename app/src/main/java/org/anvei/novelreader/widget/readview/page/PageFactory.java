@@ -1,9 +1,11 @@
-package org.anvei.novelreader.widget.read.page;
+package org.anvei.novelreader.widget.readview.page;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +17,19 @@ public class PageFactory {
         this.pageConfig = pageConfig;
     }
 
-    public List<Page> splitPage(String content) {
+    public @NonNull List<Page> splitPage(String content) {
+        return splitPage(content, "  待加载中...");
+    }
+
+    /**
+     * 切割指定字符串
+     * @param content 待切割字符串
+     * @param message 如果content为空字符串，就返回一个由给定的message生成的字符串
+     * @return 页面数据列表
+     */
+    public @NonNull List<Page> splitPage(String content, String message) {
         if (TextUtils.isEmpty(content)) {
-            content = "  带加载中...";
+            content = message;
         }
         List<Page> pages = new ArrayList<>();
         String[] splits = content.split("\\n");

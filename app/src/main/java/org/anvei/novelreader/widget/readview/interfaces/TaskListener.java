@@ -1,4 +1,4 @@
-package org.anvei.novelreader.widget.read.interfaces;
+package org.anvei.novelreader.widget.readview.interfaces;
 
 public interface TaskListener {
 

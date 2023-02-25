@@ -1,13 +1,15 @@
-package org.anvei.novelreader.widget.read
+package org.anvei.novelreader.widget.readview
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import org.anvei.novelreader.R
-import org.anvei.novelreader.widget.read.page.Page
+import org.anvei.novelreader.widget.readview.page.Page
 
+private const val TAG = "ReadPage"
 class ReadPage(context: Context, attributeSet: AttributeSet?) : ViewGroup(context, attributeSet) {
 
     var headerView: View? = null            // 页眉
@@ -47,6 +49,7 @@ class ReadPage(context: Context, attributeSet: AttributeSet?) : ViewGroup(contex
                 layout(0, 0, this.measuredWidth, this.measuredHeight)
             }
         }
+        Log.d(TAG, "onLayout: ")
     }
 
     fun showTitleView(show: Boolean) {
