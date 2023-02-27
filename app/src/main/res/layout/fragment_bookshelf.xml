@@ -39,7 +39,7 @@
                 android:background="@drawable/background_search_bar"
                 android:layout_toEndOf="@id/bookshelf_filter_btn"
                 android:layout_toStartOf="@id/bookshelf_read_history_btn"
-                android:text="@string/bookshelf_search_bar"
+                android:text="@string/search_bar_hint"
                 app:drawableStartCompat="@drawable/ic_search"
                 android:gravity="center_vertical"
                 android:textSize="14sp"/>

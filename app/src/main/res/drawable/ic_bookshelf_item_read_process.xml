@@ -1,0 +1,9 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/bookshelf_item_ic_size"
+    android:height="@dimen/bookshelf_item_ic_size"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+  <path
+      android:pathData="M512,996C244.7,996 28,779.3 28,512 28,244.7 244.7,28 512,28c267.3,0 484,216.7 484,484 0,267.3 -216.7,484 -484,484zM512,924c227.5,0 412,-184.5 412,-412S739.5,100 512,100 100,284.5 100,512s184.5,412 412,412zM480,528.6c-3.7,-7.1 -4.8,-15 -3.5,-22.6L476.5,288c0,-19.9 16.1,-36 36,-36s36,16.1 36,36v211.5l169.1,202.4c12.8,15.3 10.7,38 -4.5,50.7 -15.3,12.8 -38,10.7 -50.7,-4.5L487.8,539.2a36.1,36.1 0,0 1,-7.8 -10.6z"
+      android:fillColor="#000000"/>
+</vector>
