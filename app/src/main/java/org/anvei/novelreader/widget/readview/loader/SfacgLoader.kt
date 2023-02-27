@@ -1,10 +1,10 @@
 package org.anvei.novelreader.widget.readview.loader
 
 import org.anvei.novel.api.SfacgAPI
-import org.anvei.novelreader.bean.*
+import org.anvei.novelreader.widget.readview.bean.*
 
-class SfacgLoader : AbsBookLoader() {
-    val api: SfacgAPI = SfacgAPI()
+class SfacgLoader() : AbsBookLoader("SfacgAPP", LoaderFactory.SfacgLoaderUID) {
+    private val api: SfacgAPI = SfacgAPI()
 
     override fun getBook(): Book {
         val chapListJson = api.getChapListJson(link.toLong())
@@ -16,14 +16,30 @@ class SfacgLoader : AbsBookLoader() {
                 size++
             }
             val endIndex = size + 1
-            volumeList.add(Volume(volume.title, IndexBean(startIndex, endIndex)))
+            volumeList.add(
+                Volume(
+                    volume.title,
+                    IndexBean(
+                        startIndex,
+                        endIndex
+                    )
+                )
+            )
         }
-        val book = VolumeBook("SfacgAPP", size, volumeList)
+        val book = VolumeBook(
+            "SfacgAPP",
+            size,
+            volumeList
+        )
         var index = 0
         for (volume in chapListJson.data.volumeList) {
             for (chapter in volume.chapterList) {
                 index++
-                book.addChapter(Chapter(index, chapter.title).apply {
+                book.addChapter(
+                    Chapter(
+                        index,
+                        chapter.title
+                    ).apply {
                     what = chapter.chapId.toString()
                 })
             }

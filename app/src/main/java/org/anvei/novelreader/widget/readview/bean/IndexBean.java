@@ -1,4 +1,4 @@
-package org.anvei.novelreader.bean;
+package org.anvei.novelreader.widget.readview.bean;
 
 // 表示一个从startIndex到endIndex-1的区间（不包含endIndex）
 public class IndexBean {

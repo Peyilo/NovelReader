@@ -1,7 +1,7 @@
 package org.anvei.novelreader.widget.readview.loader
 
-import org.anvei.novelreader.bean.Book
-import org.anvei.novelreader.bean.Chapter
+import org.anvei.novelreader.widget.readview.bean.Book
+import org.anvei.novelreader.widget.readview.bean.Chapter
 
 interface BookLoader {
 

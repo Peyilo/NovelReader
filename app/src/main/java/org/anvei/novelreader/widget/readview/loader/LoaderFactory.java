@@ -1,18 +1,25 @@
 package org.anvei.novelreader.widget.readview.loader;
 
-import org.anvei.novelreader.entity.Source;
-
 public class LoaderFactory {
-    private volatile static SfacgLoader sfacgLoader;
+    public LoaderFactory() {
+    }
 
-    public static AbsBookLoader getLoader(Source source) {
-        if (sfacgLoader == null) {
-            synchronized (SfacgLoader.class) {
+    public static final int SfacgLoaderUID = 0x23363146;
+    private volatile SfacgLoader sfacgLoader;
+
+    public AbsBookLoader getLoader(int loadUID) {
+        switch (loadUID) {
+            case SfacgLoaderUID: {
                 if (sfacgLoader == null) {
-                    sfacgLoader = new SfacgLoader();
+                    synchronized (SfacgLoader.class) {
+                        if (sfacgLoader == null) {
+                            sfacgLoader = new SfacgLoader();
+                        }
+                    }
                 }
+                return sfacgLoader;
             }
         }
-        return sfacgLoader;
+        throw new IllegalArgumentException("没有该loaderUID对应的小说加载器!");
     }
 }

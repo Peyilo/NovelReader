@@ -6,10 +6,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import org.anvei.novelreader.R
-import org.anvei.novelreader.bean.Chapter
+import org.anvei.novelreader.widget.readview.bean.Chapter
 
-class ChapterAdapter(val chapterList: List<Chapter>) : RecyclerView.Adapter<ChapterAdapter.Holder>() {
+class ChapterAdapter(private val chapterList: List<Chapter>) : RecyclerView.Adapter<ChapterAdapter.Holder>() {
     var onItemClickListener: OnItemClickListener? = null
+
     class Holder(view: View) : RecyclerView.ViewHolder(view) {
         val chapterTitle: TextView = view.findViewById(R.id.chapter_list_item_text)
     }

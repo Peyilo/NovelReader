@@ -17,7 +17,7 @@ public class ContentView extends View {
 
     private static final String TAG = "ContentView";
     private Page page;
-    private Bitmap bitmap;
+    private Bitmap cache;
     private boolean needRecreate = false;
 
     private PageConfig pageConfig;
@@ -54,19 +54,19 @@ public class ContentView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        pageConfig.width = getWidth();
-        pageConfig.height = getHeight();
+        pageConfig.setWidth(getWidth());
+        pageConfig.setHeight(getHeight());
         if (page != null) {
             if (needRecreate) {
                 needRecreate = false;
-                bitmap = pageConfig.pageFactory.createPage(this.page);
-            } else if (bitmap == null) {
-                bitmap = pageConfig.pageFactory.createPage(this.page);
+                cache = pageConfig.getPageFactory().createPage(this.page);
+            } else if (cache == null) {
+                cache = pageConfig.getPageFactory().createPage(this.page);
             }
-            canvas.drawBitmap(bitmap, 0F, 0F, pageConfig.bitmapPaint);
+            canvas.drawBitmap(cache, 0F, 0F, pageConfig.getBitmapPaint());
         } else {
             Log.d(TAG, "onDraw: needRecreate " + needRecreate);
-            canvas.drawBitmap(pageConfig.getBackground(), 0F, 0F, pageConfig.bitmapPaint);
+            canvas.drawBitmap(pageConfig.getBackground(), 0F, 0F, pageConfig.getBitmapPaint());
         }
     }
 }

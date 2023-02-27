@@ -8,13 +8,13 @@ import android.view.View;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 
-import org.anvei.novelreader.R;
-import org.anvei.novelreader.bean.Book;
-import org.anvei.novelreader.bean.Chapter;
+import org.anvei.novelreader.widget.readview.bean.Book;
+import org.anvei.novelreader.widget.readview.bean.Chapter;
 import org.anvei.novelreader.widget.readview.flip.FlipLayout;
 import org.anvei.novelreader.widget.readview.flip.PageDirection;
 import org.anvei.novelreader.widget.readview.interfaces.TaskListener;
 import org.anvei.novelreader.widget.readview.loader.BookLoader;
+import org.anvei.novelreader.widget.readview.page.IPageFactory;
 import org.anvei.novelreader.widget.readview.page.Page;
 import org.anvei.novelreader.widget.readview.page.PageConfig;
 import org.anvei.novelreader.widget.readview.page.PageFactory;
@@ -30,8 +30,7 @@ public class ReadView extends FlipLayout {
 
     private static final String TAG = "ReadView";
 
-    private PageConfig pageConfig;
-    private PageFactory pageFactory;
+    private final PageConfig pageConfig;
     private Book book;
     private BookLoader bookLoader;
     private final List<Task> taskList = new ArrayList<>();
@@ -52,6 +51,7 @@ public class ReadView extends FlipLayout {
 
     public ReadView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        pageConfig = new PageConfig();
         addOnFlipOverListener(new OnFlipListener() {
             @Override
             public void onNext() {
@@ -72,25 +72,17 @@ public class ReadView extends FlipLayout {
                 }
             }
         });
-        for (int i = 0; i < 3; i++) {
-            ReadPage childView = createChildView();
-            addView(childView);
-        }
-        setCurPagePointer(1);
     }
 
-    private ReadPage createChildView() {
-        if (pageConfig == null) {
-            pageConfig = new PageConfig();
-            pageFactory = new PageFactory(pageConfig);
-            pageConfig.pageFactory = pageFactory;
-        }
-        ReadPage page = new ReadPage(getContext());
-        page.setView(R.layout.view_page_item);
-        page.setTitleView(page.getView().findViewById(R.id.page_title));
-        page.setContentView(page.getView().findViewById(R.id.page_content));
-        page.getContentView().setPageConfig(pageConfig);
-        return page;
+    /**
+     * 获取一个默认的PageFactory对象
+     */
+    IPageFactory getDefaultPageFactory() {
+        return new PageFactory(pageConfig);
+    }
+
+    public interface PageInitializer {
+        void initPage(ReadPage page);
     }
 
     /**
@@ -206,10 +198,9 @@ public class ReadView extends FlipLayout {
             bookLoader.loadChapter(curChapter);
             // 切割章节需要视图的宽度和高度，需要在主线程执行
             post(() -> {
-                pageConfig.width = ((ReadPage) getPageView(0)).contentView.getWidth();
-                pageConfig.height = ((ReadPage) getPageView(0)).contentView.getHeight();
-                pageConfig.titleHeight = ((ReadPage) getPageView(-1)).getTitleHeight();
-                curChapter.setPages(pageFactory.splitPage(curChapter.getContent()));
+                pageConfig.setWidth(((ReadPage) getPageView(0)).getContent().getWidth());
+                pageConfig.setHeight(((ReadPage) getPageView(0)).getContent().getHeight());
+                curChapter.setPages(pageConfig.getPageFactory().splitPage(curChapter));
                 refresh();
                 if (onLoadListener != null) {
                     onLoadListener.onLoadFinished(book);
@@ -278,9 +269,9 @@ public class ReadView extends FlipLayout {
             chapter.setStatus(Chapter.Status.IS_LOADING);
             startTask(() -> {
                 bookLoader.loadChapter(chapter);
-                pageConfig.width = getWidth();
-                pageConfig.height = getHeight();
-                chapter.setPages(pageFactory.splitPage(chapter.getContent()));
+                pageConfig.setWidth(getWidth());
+                pageConfig.setHeight(getHeight());
+                chapter.setPages(pageConfig.getPageFactory().splitPage(chapter));
                 Log.d(TAG, "requestLoadChapter: load chapter " + chapterIndex);
                 refresh();
             });
@@ -296,12 +287,19 @@ public class ReadView extends FlipLayout {
         Chapter chapter = book.getChapter(chapterIndex);
         if (chapter.getStatus() != Chapter.Status.IS_LOADING) {
             chapter.setStatus(Chapter.Status.IS_LOADING);
-            pageConfig.width = getWidth();
-            pageConfig.height = getHeight();
-            chapter.setPages(pageFactory.splitPage(chapter.getContent()));
+            pageConfig.setWidth(getWidth());
+            pageConfig.setHeight(getHeight());
+            chapter.setPages(pageConfig.getPageFactory().splitPage(chapter));
             Log.d(TAG, "requestSplitChapter: split chapter" + chapterIndex);
             requestRefreshPage();
         }
+    }
+
+    /**
+     * TODO: 请求重新切分全部已经加载的章节
+     */
+    public void requestReSplitAllChapter() {
+
     }
 
     public void refresh() {
@@ -398,7 +396,7 @@ public class ReadView extends FlipLayout {
                         chapter.setStatus(Chapter.Status.IS_LOADING);
                     }
                     Log.d(TAG, "preLoad: load chapter " + i);
-                    List<Page> pages = pageConfig.pageFactory.splitPage(chapter.getContent());
+                    List<Page> pages = pageConfig.getPageFactory().splitPage(chapter);
                     chapter.setPages(pages);
                     break;
             }
@@ -519,7 +517,35 @@ public class ReadView extends FlipLayout {
     }
 
     public interface OnLoadListener {
+        // 该方法将会在加载完Book对象（即目录等相关信息）以后会被调用
         void onLoadFinished(Book book);
+    }
+
+    private ReadPage createView(PageInitializer pageInitializer) {
+        ReadPage page = null;
+        if (pageInitializer != null) {
+            page = new ReadPage(getContext());
+            pageInitializer.initPage(page);
+            page.setPageConfig(pageConfig);
+        }
+        return page;
+    }
+
+    // 初始化页面
+    public void setPageInitializer(PageInitializer pageInitializer) {
+        for (int i = 0; i < 3; i++) {
+            ReadPage childView = createView(pageInitializer);
+            addView(childView);
+        }
+        setCurPagePointer(1);
+    }
+
+    public PageConfig getPageConfig() {
+        return pageConfig;
+    }
+
+    public void setPageFactory(IPageFactory pageFactory) {
+        pageConfig.setPageFactory(pageFactory);
     }
 
 }

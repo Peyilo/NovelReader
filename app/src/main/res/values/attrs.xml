@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="ReadPage">
-        <attr name="layout_child" format="reference"/>
+        <attr name="layout_children" format="reference"/>
+        <attr name="child_content" format="reference"/>
+        <attr name="child_header" format="reference"/>
+        <attr name="child_footer" format="reference"/>
     </declare-styleable>
 </resources>

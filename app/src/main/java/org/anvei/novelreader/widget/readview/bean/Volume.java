@@ -1,4 +1,4 @@
-package org.anvei.novelreader.bean;
+package org.anvei.novelreader.widget.readview.bean;
 
 import androidx.annotation.Nullable;
 

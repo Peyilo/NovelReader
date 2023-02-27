@@ -1,6 +1,11 @@
 package org.anvei.novelreader.widget.readview.flip;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Paint;
+import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -35,9 +40,17 @@ public abstract class FlipLayout extends ViewGroup {
     private View scrolledView;
     private int curPagePointer = 0;
 
+    // 绘制阴影相关参数
+    private boolean enableShadow = false;
+    private final Paint shadowPaint;
+    private int shadowWidth = 0;
+    private final int[] gradientColors = {0x8F000000, 0x00000000};
+    private final float[] gradientPositions = {0.0f, 1.0f};
+
     public FlipLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         scroller = new Scroller(context);
+        shadowPaint = new Paint();
     }
 
     @Override
@@ -62,9 +75,16 @@ public abstract class FlipLayout extends ViewGroup {
             child.layout(0, 0, width, height);
             // curPageIndex之前的页面全部需要滑动到主视图之外
             if (i > curPagePointer) {
-                child.scrollTo(-getWidth(), 0);
+                child.scrollTo(-getPrevScrollWidth(), 0);
             }
         }
+    }
+
+    private int getPrevScrollWidth() {
+        if (enableShadow) {
+            return getWidth() + getShadowWidth();
+        }
+        return getWidth();
     }
 
     /**
@@ -123,7 +143,7 @@ public abstract class FlipLayout extends ViewGroup {
                     }
                 } else {
                     if (distance < 0) {
-                        scrolledView.scrollTo(getWidth() + (int) distance, 0);
+                        scrolledView.scrollTo(getPrevScrollWidth() + (int) distance, 0);
                     }
                 }
                 return true;
@@ -139,11 +159,11 @@ public abstract class FlipLayout extends ViewGroup {
                         if (initialDirection == PageDirection.TO_NEXT) {
                             dx = -scrollX;
                         } else {
-                            dx = getWidth() - scrollX;
+                            dx = getPrevScrollWidth() - scrollX;
                         }
                     } else { // 完成翻页，并且加载新的视图
                         if (distance > 0) {
-                            dx = getWidth() - scrollX;
+                            dx = getPrevScrollWidth() - scrollX;
                             endDirection = PageDirection.TO_NEXT;
                         } else {
                             dx = -scrollX;
@@ -173,7 +193,7 @@ public abstract class FlipLayout extends ViewGroup {
                         View newView = getView(convertView, endDirection);
                         if (newView != null) {
                             removeView(convertView);
-                            newView.scrollTo(getWidth(), 0);
+                            newView.scrollTo(getPrevScrollWidth(), 0);
                             addView(newView);
                         }
                     }
@@ -189,6 +209,22 @@ public abstract class FlipLayout extends ViewGroup {
         if (scroller.computeScrollOffset()) {
             scrolledView.scrollTo(scroller.getCurrX(), scroller.getCurrY());
             postInvalidate();
+        }
+    }
+
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
+        if (enableShadow && scrolledView != null) {
+            // 绘制阴影
+            int x = getWidth() - scrolledView.getScrollX();
+            int min = -getShadowWidth();
+            if (x > min && x < getWidth()) {
+                LinearGradient gradient = new LinearGradient(x, 0, x + getShadowWidth(), 0,
+                        gradientColors, gradientPositions, Shader.TileMode.CLAMP);
+                shadowPaint.setShader(gradient);
+                canvas.drawRect(x, 0, x + getShadowWidth(), getHeight(), shadowPaint);
+            }
         }
     }
 
@@ -210,9 +246,17 @@ public abstract class FlipLayout extends ViewGroup {
         onFlipListenerList.remove(index);
     }
 
-    // 翻页监听
+    /**
+     * 翻页监听接口
+     */
     public interface OnFlipListener {
+        /**
+         * 翻向下一页时的回调函数，该方法会在getView之前被调用
+         */
         void onNext();
+        /**
+         * 翻向上一页时的回调函数，该方法会在getView之前被调用
+         */
         void onPre();
     }
 
@@ -230,5 +274,17 @@ public abstract class FlipLayout extends ViewGroup {
 
     public void setCurPagePointer(int curPagePointer) {
         this.curPagePointer = curPagePointer;
+    }
+
+    public void setShadowWidth(int shadowWidth) {
+        this.shadowWidth = shadowWidth;
+    }
+
+    public int getShadowWidth() {
+        return shadowWidth;
+    }
+
+    public void enableShadow(boolean enable) {
+        this.enableShadow = enable;
     }
 }
