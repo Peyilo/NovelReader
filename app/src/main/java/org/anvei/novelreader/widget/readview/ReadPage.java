@@ -38,7 +38,7 @@ public class ReadPage extends ViewGroup {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         for (int i = 0; i < getChildCount(); i++) {
-            getChildAt(i).layout(0, 0, getWidth(), getHeight());
+            getChildAt(i).layout(0, 0, getMeasuredWidth(), getMeasuredHeight());
         }
     }
 

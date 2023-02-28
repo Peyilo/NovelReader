@@ -6,17 +6,12 @@
     tools:context=".activity.ReadActivity"
     android:id="@+id/read_drawer">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <org.anvei.novelreader.widget.readview.ReadView
+        android:id="@+id/read_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <org.anvei.novelreader.widget.readview.ReadView
-            android:id="@+id/read_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingTop="@dimen/status_bar_height" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="match_parent"
+        android:paddingTop="@dimen/status_bar_height"
+        android:paddingHorizontal="10dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"

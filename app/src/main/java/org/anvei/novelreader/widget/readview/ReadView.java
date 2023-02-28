@@ -199,8 +199,8 @@ public class ReadView extends FlipLayout {
             bookLoader.loadChapter(curChapter);
             // 切割章节需要视图的宽度和高度，需要在主线程执行
             post(() -> {
-                pageConfig.setWidth(((ReadPage) getPageView(0)).getContent().getWidth());
-                pageConfig.setHeight(((ReadPage) getPageView(0)).getContent().getHeight());
+                pageConfig.setContentWidth(((ReadPage) getPageView(0)).getContent().getWidth());
+                pageConfig.setContentHeight(((ReadPage) getPageView(0)).getContent().getHeight());
                 curChapter.setPages(pageConfig.getPageFactory().splitPage(curChapter));
                 refresh();
                 if (onLoadListener != null) {
@@ -270,8 +270,8 @@ public class ReadView extends FlipLayout {
             chapter.setStatus(Chapter.Status.IS_LOADING);
             startTask(() -> {
                 bookLoader.loadChapter(chapter);
-                pageConfig.setWidth(getWidth());
-                pageConfig.setHeight(getHeight());
+                pageConfig.setContentWidth(getWidth());
+                pageConfig.setContentHeight(getHeight());
                 chapter.setPages(pageConfig.getPageFactory().splitPage(chapter));
                 Log.d(TAG, "requestLoadChapter: load chapter " + chapterIndex);
                 refresh();
@@ -288,8 +288,8 @@ public class ReadView extends FlipLayout {
         Chapter chapter = book.getChapter(chapterIndex);
         if (chapter.getStatus() != Chapter.Status.IS_LOADING) {
             chapter.setStatus(Chapter.Status.IS_LOADING);
-            pageConfig.setWidth(getWidth());
-            pageConfig.setHeight(getHeight());
+            pageConfig.setContentWidth(getWidth());
+            pageConfig.setContentHeight(getHeight());
             chapter.setPages(pageConfig.getPageFactory().splitPage(chapter));
             Log.d(TAG, "requestSplitChapter: split chapter" + chapterIndex);
             requestRefreshPage();

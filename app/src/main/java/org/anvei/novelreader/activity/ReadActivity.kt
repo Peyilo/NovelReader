@@ -38,7 +38,7 @@ class ReadActivity : BaseActivity() {
         loader.link = intent.getStringExtra(LINK)
         // 完成ReadPage的初始化
         binding.readView.setPageInitializer {
-            it.initLayout(R.layout.item_view_page, R.id.page_content, R.id.page_header, ReadPage.NONE)
+            it.initLayout(R.layout.item_view_page, R.id.page_content, R.id.page_header, R.id.page_footer)
         }
         // 启用阴影绘制
         binding.readView.enableShadow(true)

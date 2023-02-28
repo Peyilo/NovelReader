@@ -7,6 +7,7 @@ import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,13 +59,21 @@ public abstract class FlipLayout extends ViewGroup {
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        // 设置view的测量大小
+        int heightMode =MeasureSpec.getMode(heightMeasureSpec);
         setMeasuredDimension(widthSize, heightSize);
+        Log.d(TAG, "onMeasure: parentWidth = " + widthSize);
+        Log.d(TAG, "onMeasure: parentHeight = " + heightSize);
+        // 设置view的测量大小
         for (int i = 0; i < getChildCount(); i++) {
-            // 子view的MeasureSpec和FlipLayout相同(这里只考虑了FlipLayout的paddingTop)
-            getChildAt(i).measure(widthMeasureSpec,
-                    MeasureSpec.makeMeasureSpec(Math.max(0, heightSize - getPaddingTop()), heightMode));
+            View child = getChildAt(0);
+            if (child.getVisibility() != GONE) {
+                int childWidth = Math.max(0, widthSize - getPaddingLeft() - getPaddingRight());
+                int childHeight = Math.max(0, heightSize - getPaddingTop() - getPaddingBottom());
+                child.measure(MeasureSpec.makeMeasureSpec(childWidth, widthMode),
+                        MeasureSpec.makeMeasureSpec(childHeight, heightMode));
+                Log.d(TAG, "onMeasure: width = " + childWidth);
+                Log.d(TAG, "onMeasure: height = " + childHeight);
+            }
         }
     }
 
@@ -75,7 +84,8 @@ public abstract class FlipLayout extends ViewGroup {
             int height = child.getMeasuredHeight();
             int width = child.getMeasuredWidth();
             // 子view全部叠放在一起，但是最顶层的子view被设置了scrollX，所以滑出了屏幕
-            child.layout(0, getPaddingTop(), width, height);
+            child.layout(getPaddingLeft(), getPaddingTop(),
+                    getPaddingLeft() + width, getPaddingTop() + height);
             // curPageIndex之前的页面全部需要滑动到主视图之外
             if (i > curPagePointer) {
                 child.scrollTo(-getPrevScrollWidth(), 0);

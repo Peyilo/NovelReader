@@ -54,8 +54,10 @@ public class ContentView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        pageConfig.setWidth(getWidth());
-        pageConfig.setHeight(getHeight());
+        pageConfig.setContentWidth(getWidth());
+        pageConfig.setContentHeight(getHeight());
+        Log.d(TAG, "splitPage: height = " + getHeight());
+        Log.d(TAG, "splitPage: width = " + getWidth());
         if (page != null) {
             if (needRecreate) {
                 needRecreate = false;

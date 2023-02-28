@@ -7,14 +7,12 @@ import android.graphics.Typeface
 
 class PageConfig {
     var bitmapPaint = Paint()
+    // 页面的宽高
+    var pageWidth = 0
+    var pageHeight = 0
     // contentView的宽高
-    var width = 0
-    var height = 0
-    // contentView的内边距
-    var paddingBottom = 80
-    var paddingTop = 80
-    var paddingLeft = 50
-    var paddingRight = 50
+    var contentWidth = 0
+    var contentHeight = 0
     // contentView的文字Paint
     val textPaint: Paint = Paint().apply {
         color = Color.parseColor("#2B2B2B")
@@ -66,7 +64,7 @@ class PageConfig {
     }
     fun getBackground(): Bitmap {
         if (background == null) {
-            background = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+            background = Bitmap.createBitmap(contentWidth, contentHeight, Bitmap.Config.RGB_565)
             background!!.eraseColor(bgColor)
         }
         return background!!
