@@ -5,10 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.recyclerview.widget.LinearLayoutManager
-import org.anvei.novel.api.SfacgAPI
 import org.anvei.novelreader.databinding.ActivitySearchResultBinding
 import org.anvei.novelreader.ui.search.ResultAdapter
-import org.anvei.novelreader.ui.search.bean.SearchResultItem
 import org.anvei.novelreader.util.StatusBarUtils
 import org.anvei.novelreader.widget.readview.loader.LoaderFactory
 
@@ -21,16 +19,17 @@ class SearchResultActivity : BaseActivity() {
         setContentView(binding.root)
         StatusBarUtils.requestFullScreen(window, binding.root, true, false)
         val keyword = intent.getStringExtra(KEYWORD)
-        search(keyword!!)
         binding.resultBar.setText(keyword)
         adapter = ResultAdapter(this)
         binding.resultRecycler.adapter = adapter
         binding.resultRecycler.layoutManager = LinearLayoutManager(this)
+        search(keyword!!)
         binding.resultCancelBtn.setOnClickListener {
             finish()
         }
         binding.resultBar.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                // 先清空，再进行搜索
                 adapter.resultList.clear()
                 search(binding.resultBar.text.toString())
                 true
@@ -43,19 +42,8 @@ class SearchResultActivity : BaseActivity() {
     private fun search(keyword: String) {
         // 开始发起请求
         Thread{
-            val api = SfacgAPI.getInstance()
-            val resultJson = api.search(keyword)
             val start = adapter.resultList.size
-            for (novel in resultJson.data.novels) {
-                adapter.resultList.add(SearchResultItem(LoaderFactory.SfacgLoaderUID).apply {
-                    title = novel.novelName
-                    author = novel.authorName
-                    coverUrl = novel.novelCover
-                    charCount = novel.charCount
-                    url = novel.novelId.toString()
-                    intro = novel.expand.intro
-                })
-            }
+            adapter.resultList.addAll(getLoaderFactory().getLoader(LoaderFactory.SfacgLoaderUID).search(keyword))
             val end = adapter.resultList.size
             if (start != end) {
                 runOnUiThread {

@@ -14,7 +14,7 @@
             android:id="@+id/read_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/status_bar_height" />
+            android:paddingTop="@dimen/status_bar_height" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -56,12 +56,15 @@ public abstract class FlipLayout extends ViewGroup {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         // 设置view的测量大小
         setMeasuredDimension(widthSize, heightSize);
         for (int i = 0; i < getChildCount(); i++) {
-            // 子view的MeasureSpec和FlipperLayout相同
-            getChildAt(i).measure(widthMeasureSpec, heightMeasureSpec);
+            // 子view的MeasureSpec和FlipLayout相同(这里只考虑了FlipLayout的paddingTop)
+            getChildAt(i).measure(widthMeasureSpec,
+                    MeasureSpec.makeMeasureSpec(Math.max(0, heightSize - getPaddingTop()), heightMode));
         }
     }
 
@@ -72,7 +75,7 @@ public abstract class FlipLayout extends ViewGroup {
             int height = child.getMeasuredHeight();
             int width = child.getMeasuredWidth();
             // 子view全部叠放在一起，但是最顶层的子view被设置了scrollX，所以滑出了屏幕
-            child.layout(0, 0, width, height);
+            child.layout(0, getPaddingTop(), width, height);
             // curPageIndex之前的页面全部需要滑动到主视图之外
             if (i > curPagePointer) {
                 child.scrollTo(-getPrevScrollWidth(), 0);
@@ -89,6 +92,7 @@ public abstract class FlipLayout extends ViewGroup {
 
     /**
      * 获取指定的子view
+     *
      * @param offset 偏移量，offset为0则返回当前显示的子view，offset为-1时返回上一页子view
      */
     protected View getPageView(int offset) {
@@ -185,7 +189,7 @@ public abstract class FlipLayout extends ViewGroup {
                             newView.scrollTo(0, 0);
                             addView(newView, 0);
                         }
-                    } else if (endDirection == PageDirection.TO_PREV){
+                    } else if (endDirection == PageDirection.TO_PREV) {
                         for (OnFlipListener onFlipListener : onFlipListenerList) {
                             onFlipListener.onPre();
                         }
@@ -254,6 +258,7 @@ public abstract class FlipLayout extends ViewGroup {
          * 翻向下一页时的回调函数，该方法会在getView之前被调用
          */
         void onNext();
+
         /**
          * 翻向上一页时的回调函数，该方法会在getView之前被调用
          */

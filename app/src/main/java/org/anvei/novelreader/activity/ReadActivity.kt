@@ -12,6 +12,7 @@ import org.anvei.novelreader.R
 import org.anvei.novelreader.databinding.ActivityReadBinding
 import org.anvei.novelreader.ui.read.ChapterAdapter
 import org.anvei.novelreader.util.StatusBarUtils
+import org.anvei.novelreader.widget.readview.ReadPage
 import org.anvei.novelreader.widget.readview.loader.AbsBookLoader
 
 private const val TAG = "ReadViewTest"
@@ -37,7 +38,7 @@ class ReadActivity : BaseActivity() {
         loader.link = intent.getStringExtra(LINK)
         // 完成ReadPage的初始化
         binding.readView.setPageInitializer {
-            it.initLayout(R.layout.item_view_page, R.id.page_content)
+            it.initLayout(R.layout.item_view_page, R.id.page_content, R.id.page_header, ReadPage.NONE)
         }
         // 启用阴影绘制
         binding.readView.enableShadow(true)
@@ -62,11 +63,6 @@ class ReadActivity : BaseActivity() {
         binding.readView.setOnClickListener {
             binding.readDrawer.openDrawer(GravityCompat.START)
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        binding.readView.destroy()
     }
 
     companion object {

@@ -68,7 +68,9 @@ class BookshelfFragment : Fragment() {
     private fun refreshBookshelf() {
         Thread {
             mainBookshelfAdapter.books = BookRepository.getAllBook()
-            mainBookshelfAdapter.notifyDataSetChanged()
+            activity!!.runOnUiThread {
+                mainBookshelfAdapter.notifyDataSetChanged()
+            }
         }.start()
     }
 

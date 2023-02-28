@@ -1,12 +1,13 @@
 package org.anvei.novelreader.widget.readview.loader
 
 import org.anvei.novel.api.SfacgAPI
+import org.anvei.novelreader.ui.search.bean.SearchResultItem
 import org.anvei.novelreader.widget.readview.bean.*
 
-class SfacgLoader() : AbsBookLoader("SfacgAPP", LoaderFactory.SfacgLoaderUID) {
+class SfacgLoader : AbsBookLoader("SfacgAPP", LoaderFactory.SfacgLoaderUID) {
     private val api: SfacgAPI = SfacgAPI()
 
-    override fun getBook(): Book {
+    override fun loadBook(): Book {
         val chapListJson = api.getChapListJson(link.toLong())
         var size = 0
         val volumeList = ArrayList<Volume>()
@@ -53,4 +54,21 @@ class SfacgLoader() : AbsBookLoader("SfacgAPP", LoaderFactory.SfacgLoaderUID) {
             chapter.content = chapContentJson.content
         }
     }
+
+    override fun search(keyword: String): MutableList<SearchResultItem> {
+        val resultJson = api.search(keyword)
+        val list: MutableList<SearchResultItem> = ArrayList()
+        for (novel in resultJson.data.novels) {
+            list.add(SearchResultItem(LoaderFactory.SfacgLoaderUID).apply {
+                title = novel.novelName
+                author = novel.authorName
+                coverUrl = novel.novelCover
+                charCount = novel.charCount
+                url = novel.novelId.toString()
+                intro = novel.expand.intro
+            })
+        }
+        return list
+    }
+
 }

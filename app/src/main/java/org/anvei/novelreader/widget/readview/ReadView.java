@@ -13,11 +13,9 @@ import org.anvei.novelreader.widget.readview.bean.Chapter;
 import org.anvei.novelreader.widget.readview.flip.FlipLayout;
 import org.anvei.novelreader.widget.readview.flip.PageDirection;
 import org.anvei.novelreader.widget.readview.interfaces.TaskListener;
-import org.anvei.novelreader.widget.readview.loader.BookLoader;
 import org.anvei.novelreader.widget.readview.page.IPageFactory;
 import org.anvei.novelreader.widget.readview.page.Page;
 import org.anvei.novelreader.widget.readview.page.PageConfig;
-import org.anvei.novelreader.widget.readview.page.PageFactory;
 import org.anvei.novelreader.widget.readview.utils.Task;
 
 import java.util.ArrayList;
@@ -61,6 +59,7 @@ public class ReadView extends FlipLayout {
                 } else {
                     pageIndex++;
                 }
+
             }
             @Override
             public void onPre() {
@@ -74,15 +73,17 @@ public class ReadView extends FlipLayout {
         });
     }
 
-    /**
-     * 获取一个默认的PageFactory对象
-     */
-    IPageFactory getDefaultPageFactory() {
-        return new PageFactory(pageConfig);
-    }
 
     public interface PageInitializer {
         void initPage(ReadPage page);
+    }
+
+    public interface BookLoader {
+        // 该方法需要完成小说目录的加载
+        Book loadBook();
+
+        // 加载指定章节
+        void loadChapter(Chapter chapter);
     }
 
     /**
@@ -187,7 +188,7 @@ public class ReadView extends FlipLayout {
         this.chapterIndex = chapterIndex;
         this.pageIndex = pageIndex;
         startTask(() -> {
-            book = bookLoader.getBook();         // 先加载完目录信息
+            book = bookLoader.loadBook();         // 先加载完目录信息
             preLoad(chapterIndex);
             int count = book.getChapterCount();
             if (chapterIndex == THE_LAST) {     // 处理-1，将其设置为最后一章
@@ -403,7 +404,10 @@ public class ReadView extends FlipLayout {
         }
     }
 
-    public void destroy() {
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        // 防止内存泄露
         for (Task task : taskList) {
             if (task != null) {
                 if (task.isLoading()) {
