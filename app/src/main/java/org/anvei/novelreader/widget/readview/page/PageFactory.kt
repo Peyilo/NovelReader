@@ -7,7 +7,7 @@ import org.anvei.novelreader.widget.readview.bean.Chapter
 
 class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
 
-    override fun splitPage(chapter: Chapter, replace: String): List<PageData> {
+    override fun splitPage(chapter: Chapter, chapterIndex: Int, replace: String): List<PageData> {
         var content = chapter.content
         // 如果章节内容为空，就用replace作为替代字符串进行切割显示
         if (TextUtils.isEmpty(content)) {
@@ -27,7 +27,7 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
         var remainedWidth = width                       // 剩余的高度和宽度
         val textSize = pageConfig.getTextSize()         // 字符大小
         val textPaint = pageConfig.textPaint            // 绘制章节内容的Paint
-        var pageData = PageData()
+        var pageData = PageData(chapterIndex)
         var line = Line()
         var isFirst = true
         var dimen: Float
@@ -58,7 +58,7 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
                         }
                         list.add(pageData)
                         pageData =
-                            PageData()
+                            PageData(chapterIndex)
                         remainedHeight = height
                     }
                 }
@@ -77,8 +77,7 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
                             isFirst = false
                         }
                         list.add(pageData)
-                        pageData =
-                            PageData()
+                        pageData = PageData(chapterIndex)
                         remainedHeight = height
                     }
                     break

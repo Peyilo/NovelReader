@@ -5,6 +5,8 @@ import java.util.List;
 
 public class PageData {
 
+    private final int chapIndex;
+
     private final List<Line> lineList;
 
     private String title;
@@ -12,7 +14,8 @@ public class PageData {
     private boolean isFirstPage = false;
     private boolean isLoading = false;
 
-    public PageData() {
+    public PageData(int chapIndex) {
+        this.chapIndex = chapIndex;
         this.lineList = new ArrayList<>();
     }
 
@@ -36,6 +39,10 @@ public class PageData {
         Line line = new Line();
         line.add(string);
         add(line);
+    }
+
+    public int getChapIndex() {
+        return chapIndex;
     }
 
     public boolean isFirstPage() {

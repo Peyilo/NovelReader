@@ -55,7 +55,7 @@ public class ReadPage extends ViewGroup {
         assert contentId != NONE;
         content = layout.findViewById(contentId);
         if (headerId != NONE) {
-            header = layout.findViewById(contentId);
+            header = layout.findViewById(headerId);
         }
         if (footerId != NONE) {
             footer = layout.findViewById(footerId);

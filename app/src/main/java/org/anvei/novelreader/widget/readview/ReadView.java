@@ -16,7 +16,6 @@ import org.anvei.novelreader.widget.readview.page.PageConfig;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,7 +35,9 @@ public class ReadView extends BaseReadView<ReadPage> {
     private int preLoadBefore = 2;          // 预加载当前章节之前的两章节
     private int preLoadBehind = 2;          // 预加载当前章节之后的一章节
 
-    private OnLoadListener onLoadListener;
+    private OnBookInitListener onBookInitListener;
+    private OnChapterLoadListener onChapterLoadListener;
+    private OnUpdatePageListener onUpdatePageListener;
 
     public ReadView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -67,6 +68,37 @@ public class ReadView extends BaseReadView<ReadPage> {
         });
     }
 
+    public interface OnBookInitListener {
+        /**
+         * 该方法将会在初始化完Book对象（即目录等相关信息）以后会被调用
+         * @param book 加载出来的Book对象
+         */
+        void onInitFinished(Book book);
+    }
+
+    /**
+     * 当更新ReadPage时的回调监听
+     */
+    public interface OnUpdatePageListener {
+        void onUpdatePage(ReadPage page, int chapterIndex);
+    }
+
+    /**
+     * 章节加载监听
+     */
+    public interface OnChapterLoadListener {
+        /**
+         * 加载章节之前调用
+         * @param chapter 待加载章节
+         */
+        void onStart(Chapter chapter);
+
+        /**
+         * 章节加载完成之后调用
+         * @param chapter 被加载的章节
+         */
+        void onFinished(Chapter chapter);
+    }
     /**
      * ReadPage的初始化器
      */
@@ -121,7 +153,8 @@ public class ReadView extends BaseReadView<ReadPage> {
     }
 
     /**
-     * 判断是否有上一页，只有当前章节为第一章且第一页时才会返回false
+     * 判断是否有上一页，只有当前章节为第一章且第一页时才会返回false <br/>
+     * 本方法返回值关系到页面可否向前翻页
      */
     @Override
     protected boolean hasPrePage() {
@@ -138,15 +171,23 @@ public class ReadView extends BaseReadView<ReadPage> {
     protected ReadPage getView(ReadPage convertView, PageDirection direction) {
         switch (direction) {
             case TO_NEXT:
-                if (hasNextPage()) {        // 页码已经更新了一次，这次是对翻页结束以后是否有下一页的检测
+                // BaseReadView中在翻页之前已经对hasNextPage()进行了一次检查，
+                // 在调用本方法之前，章节序号、页面序号又被更行了一次，所以还需要再对翻页之后的hashNextPage()进行一次检查
+                if (hasNextPage()) {
                     PageData nextPageData = getNextPageData();
                     convertView.setPage(nextPageData);
+                    if (onUpdatePageListener != null) {
+                        onUpdatePageListener.onUpdatePage(convertView, nextPageData.getChapIndex());
+                    }
                 }
                 break;
             case TO_PREV:
                 if (hasPrePage()) {
-                    PageData pageData = getPrePageData();
-                    convertView.setPage(pageData);
+                    PageData prePageData = getPrePageData();
+                    convertView.setPage(prePageData);
+                    if (onUpdatePageListener != null) {
+                        onUpdatePageListener.onUpdatePage(convertView, prePageData.getChapIndex());
+                    }
                 }
                 break;
         }
@@ -213,8 +254,8 @@ public class ReadView extends BaseReadView<ReadPage> {
                 // 切割章节
                 requestPreSplit(this.chapterIndex);
                 refreshPages();
-                if (onLoadListener != null) {
-                    onLoadListener.onLoadFinished(book);
+                if (onBookInitListener != null) {
+                    onBookInitListener.onInitFinished(book);
                 }
             });
         });
@@ -310,7 +351,13 @@ public class ReadView extends BaseReadView<ReadPage> {
             // 只有当章节未加载的情况下，才会调用loadChapter方法
             if (chapter.getStatus() == Chapter.Status.NO_LOAD) {
                 chapter.setStatus(Chapter.Status.IS_LOADING);
+                if (onChapterLoadListener != null) {
+                    onChapterLoadListener.onStart(chapter);
+                }
                 bookLoader.loadChapter(chapter);
+                if (onChapterLoadListener != null) {
+                    onChapterLoadListener.onFinished(chapter);
+                }
                 chapter.setStatus(Chapter.Status.NO_SPLIT);
                 Log.d(TAG, "requestPreLoad: chapterIndex " + i + " load finished!");
             }
@@ -322,7 +369,7 @@ public class ReadView extends BaseReadView<ReadPage> {
      */
     protected void requestSplitChapter(int chapterIndex) {
         Chapter chapter = book.getChapter(chapterIndex);
-        chapter.setPages(pageConfig.getPageFactory().splitPage(chapter));
+        chapter.setPages(pageConfig.getPageFactory().splitPage(chapter, chapterIndex));
         chapter.setStatus(Chapter.Status.INITIALIZED);
     }
 
@@ -337,7 +384,7 @@ public class ReadView extends BaseReadView<ReadPage> {
             Chapter chapter = book.getChapter(i);
             if (chapter.getStatus() == Chapter.Status.NO_SPLIT) {
                 chapter.setStatus(Chapter.Status.IS_SPLITTING);
-                chapter.setPages(pageConfig.getPageFactory().splitPage(chapter));
+                chapter.setPages(pageConfig.getPageFactory().splitPage(chapter, i));
                 chapter.setStatus(Chapter.Status.INITIALIZED);
                 Log.d(TAG, "requestPreSplit chapterIndex " + i + " split finished!");
             }
@@ -348,14 +395,27 @@ public class ReadView extends BaseReadView<ReadPage> {
      * 刷新当前所有页面
      */
     public void refreshPages() {
-        getPageView(0).setPage(getCurPage());
+        PageData curPageData = getCurPage();
+        ReadPage curPageView = getPageView(0);
+        curPageView.setPage(curPageData);
+        if (onUpdatePageListener != null) {
+            onUpdatePageListener.onUpdatePage(curPageView, curPageData.getChapIndex());
+        }
         if (hasNextPage()) {
             PageData nextPageData = getNextPageData();
-            getPageView(1).setPage(nextPageData);
+            ReadPage nextPageView = getPageView(1);
+            nextPageView.setPage(nextPageData);
+            if (onUpdatePageListener != null) {
+                onUpdatePageListener.onUpdatePage(nextPageView, nextPageData.getChapIndex());
+            }
         }
         if (hasPrePage()) {
             PageData prePageData = getPrePageData();
-            getPageView(-1).setPage(prePageData);
+            ReadPage prePageView = getPageView(-1);
+            prePageView.setPage(prePageData);
+            if (onUpdatePageListener != null) {
+                onUpdatePageListener.onUpdatePage(prePageView, prePageData.getChapIndex());
+            }
         }
     }
 
@@ -390,7 +450,7 @@ public class ReadView extends BaseReadView<ReadPage> {
         startTask(() -> {
             requestPreLoad(index);           // 完成预加载
             requestPreSplit(index);          // 完成预切割
-            refreshPages();                         // 刷新页面
+            refreshPages();                  // 刷新页面
             onChapterChange(oldChapterIndex, chapterIndex);
         });
     }
@@ -435,23 +495,19 @@ public class ReadView extends BaseReadView<ReadPage> {
         this.preLoadBehind = preLoadBehind;
     }
 
-    protected void startTask(Runnable task) {
+    private void startTask(Runnable task) {
         threadPool.submit(task);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        // 做一些清理工作
         threadPool.shutdown();
     }
 
-    public void setOnLoadListener(OnLoadListener onLoadListener) {
-        this.onLoadListener = onLoadListener;
-    }
-
-    public interface OnLoadListener {
-        // 该方法将会在加载完Book对象（即目录等相关信息）以后会被调用
-        void onLoadFinished(Book book);
+    public void setOnLoadListener(OnBookInitListener onBookInitListener) {
+        this.onBookInitListener = onBookInitListener;
     }
 
     /**
@@ -461,4 +517,11 @@ public class ReadView extends BaseReadView<ReadPage> {
         pageConfig.setPageFactory(pageFactory);
     }
 
+    public void setOnChapterLoadListener(OnChapterLoadListener onChapterLoadListener) {
+        this.onChapterLoadListener = onChapterLoadListener;
+    }
+
+    public void setOnUpdatePageListener(OnUpdatePageListener onUpdatePageListener) {
+        this.onUpdatePageListener = onUpdatePageListener;
+    }
 }

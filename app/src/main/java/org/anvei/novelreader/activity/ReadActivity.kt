@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -43,6 +44,15 @@ class ReadActivity : BaseActivity() {
         // 启用阴影绘制
         binding.readView.enableShadow(true)
         binding.readView.shadowWidth = 18
+        // 回调
+        binding.readView.setOnUpdatePageListener { page, chapterIndex ->
+            val book = binding.readView.book
+            val chapter = book.chapters[chapterIndex - 1]
+            val header = page.header as TextView
+            if (!header.text.equals(chapter.title)) {
+                header.text = chapter.title
+            }
+        }
         // 开始加载小说
         binding.readView.openBook(loader)
         binding.readView.setOnLoadListener {
