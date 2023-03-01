@@ -3,10 +3,8 @@ package org.anvei.novelreader.widget.readview.page
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.text.TextUtils
-import android.util.Log
 import org.anvei.novelreader.widget.readview.bean.Chapter
 
-private const val TAG = "PageFactory"
 class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
 
     override fun splitPage(chapter: Chapter, replace: String): List<Page> {
@@ -20,10 +18,10 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
         // 先将章节内容切割成段落
         val paras = content.split("\n")
         // 页面的宽高参数
-        val width: Float = pageConfig.contentWidth.toFloat() - 80
-        val height: Float = pageConfig.contentHeight.toFloat() - 180
-        Log.d(TAG, "splitPage: height = $height")
-        Log.d(TAG, "splitPage: width = $width")
+        val width = pageConfig.contentWidth - pageConfig.contentPaddingLeft -
+                pageConfig.contentPaddingRight
+        val height = pageConfig.contentHeight - pageConfig.contentPaddingTop -
+                pageConfig.contentPaddingBottom
         // 第一次需要减去章节标题的空间
         var remainedHeight = height - pageConfig.getTitleSize() - pageConfig.titleMargin
         var remainedWidth = width                       // 剩余的高度和宽度
@@ -102,21 +100,22 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
     private fun drawPage(page: Page, canvas: Canvas) {
         val textPaint = pageConfig.textPaint
         val lineHeight = pageConfig.getTextSize() + pageConfig.lineMargin
-        var base = 0
-        var left: Int
+        var base = pageConfig.contentPaddingTop
+        var left: Float
         // 绘制标题
         if (page.isFirstPage) {
             base += pageConfig.getTitleSize()
-            canvas.drawText(page.title, 0F, base.toFloat(), pageConfig.titlePaint)
+            left = pageConfig.contentPaddingLeft
+            canvas.drawText(page.title, left, base, pageConfig.titlePaint)
             base += pageConfig.titleMargin
         }
         base += pageConfig.getTextSize()
         for (i in 0 until page.size()) {
             val line = page[i]
-            left = 0
+            left = pageConfig.contentPaddingLeft
             for (j in 0 until line.size()) {
                 val c = line[j]
-                canvas.drawText(c.toString(), left.toFloat(), base.toFloat(), textPaint)
+                canvas.drawText(c.toString(), left, base, textPaint)
                 left += (textPaint.measureText(c.toString()) + pageConfig.textMargin).toInt()
             }
             if (line.isParaEndLine) {

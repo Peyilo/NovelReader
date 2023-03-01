@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="ReadPage">
-        <attr name="layout_children" format="reference"/>
-        <attr name="child_content" format="reference"/>
-        <attr name="child_header" format="reference"/>
-        <attr name="child_footer" format="reference"/>
+    <declare-styleable name="ReadView">
+        <!--contentView的padding-->
+        <attr name="contentPaddingLeft" format="dimension"/>
+        <attr name="contentPaddingRight" format="dimension"/>
+        <attr name="contentPaddingTop" format="dimension"/>
+        <attr name="contentPaddingBottom" format="dimension"/>
+        <!--contentView的文字配置-->
+        <attr name="textSize" format="dimension"/>
+        <attr name="titleSize" format="dimension"/>
+        <attr name="textColor" format="color"/>
+        <attr name="titleColor" format="color"/>
+        <!--contentView文字的间距-->
+        <attr name="titleMargin" format="dimension"/>
+        <attr name="textMargin" format="dimension"/>
+        <attr name="lineMargin" format="dimension"/>
+        <attr name="paraMargin" format="dimension"/>
     </declare-styleable>
 </resources>
