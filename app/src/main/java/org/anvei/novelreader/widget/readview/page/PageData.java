@@ -3,7 +3,7 @@ package org.anvei.novelreader.widget.readview.page;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Page {
+public class PageData {
 
     private final List<Line> lineList;
 
@@ -12,7 +12,7 @@ public class Page {
     private boolean isFirstPage = false;
     private boolean isLoading = false;
 
-    public Page() {
+    public PageData() {
         this.lineList = new ArrayList<>();
     }
 

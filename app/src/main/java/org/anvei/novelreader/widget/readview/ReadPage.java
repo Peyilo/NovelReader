@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
 
-import org.anvei.novelreader.widget.readview.page.Page;
+import org.anvei.novelreader.widget.readview.page.PageData;
 import org.anvei.novelreader.widget.readview.page.PageConfig;
 
 /**
@@ -82,7 +82,7 @@ public class ReadPage extends ViewGroup {
         this.content.setPageConfig(pageConfig);
     }
 
-    public void setPage(Page page) {
-        content.setPage(page);
+    public void setPage(PageData pageData) {
+        content.setPage(pageData);
     }
 }

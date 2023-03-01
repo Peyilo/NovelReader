@@ -7,14 +7,14 @@ import org.anvei.novelreader.widget.readview.bean.Chapter
 
 class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
 
-    override fun splitPage(chapter: Chapter, replace: String): List<Page> {
+    override fun splitPage(chapter: Chapter, replace: String): List<PageData> {
         var content = chapter.content
         // 如果章节内容为空，就用replace作为替代字符串进行切割显示
         if (TextUtils.isEmpty(content)) {
             content = replace
         }
         // 最终返回的页面数据
-        val pages: MutableList<Page> = ArrayList()
+        val list: MutableList<PageData> = ArrayList()
         // 先将章节内容切割成段落
         val paras = content.split("\n")
         // 页面的宽高参数
@@ -27,7 +27,7 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
         var remainedWidth = width                       // 剩余的高度和宽度
         val textSize = pageConfig.getTextSize()         // 字符大小
         val textPaint = pageConfig.textPaint            // 绘制章节内容的Paint
-        var page = Page()
+        var pageData = PageData()
         var line = Line()
         var isFirst = true
         var dimen: Float
@@ -45,19 +45,20 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
                 }
                 if (remainedWidth < textPaint.measureText(c.toString()).also { dimen = it }) {
                     // 剩余的宽度已经不足以再填充当前字符，所以需要重新new一个Line
-                    page.add(line)
+                    pageData.add(line)
                     line = Line()
                     remainedWidth = width
                     remainedHeight -= textSize + pageConfig.lineMargin
                     if (remainedHeight < textSize) {
                         // 处理章节首页情形
                         if (isFirst) {
-                            page.setIsFirstPage(true)
-                            page.title = chapter.title
+                            pageData.setIsFirstPage(true)
+                            pageData.title = chapter.title
                             isFirst = false
                         }
-                        pages.add(page)
-                        page = Page()
+                        list.add(pageData)
+                        pageData =
+                            PageData()
                         remainedHeight = height
                     }
                 }
@@ -65,18 +66,19 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
                 // 段落的最后一个字符
                 if (i == para.length - 1) {
                     line.setIsParaEndLine(true)
-                    page.add(line)
+                    pageData.add(line)
                     line = Line()
                     remainedWidth = width
                     remainedHeight -= textSize + pageConfig.lineMargin + pageConfig.paraMargin
                     if (remainedHeight < textSize) {
                         if (isFirst) {
-                            page.setIsFirstPage(true)
-                            page.title = chapter.title
+                            pageData.setIsFirstPage(true)
+                            pageData.title = chapter.title
                             isFirst = false
                         }
-                        pages.add(page)
-                        page = Page()
+                        list.add(pageData)
+                        pageData =
+                            PageData()
                         remainedHeight = height
                     }
                     break
@@ -84,34 +86,34 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
                 remainedWidth -= (dimen + pageConfig.textMargin).toInt()
             }
         }
-        if (pages.size == 0) {
+        if (list.size == 0) {
             if (isFirst) {
-                page.setIsFirstPage(true)
-                page.title = chapter.title
+                pageData.setIsFirstPage(true)
+                pageData.title = chapter.title
             }
-            pages.add(page)
+            list.add(pageData)
         }
-        if (page.size() != 0) {
-            pages.add(page)
+        if (pageData.size() != 0) {
+            list.add(pageData)
         }
-        return pages
+        return list
     }
 
-    private fun drawPage(page: Page, canvas: Canvas) {
+    private fun drawPage(pageData: PageData, canvas: Canvas) {
         val textPaint = pageConfig.textPaint
         val lineHeight = pageConfig.getTextSize() + pageConfig.lineMargin
         var base = pageConfig.contentPaddingTop
         var left: Float
         // 绘制标题
-        if (page.isFirstPage) {
+        if (pageData.isFirstPage) {
             base += pageConfig.getTitleSize()
             left = pageConfig.contentPaddingLeft
-            canvas.drawText(page.title, left, base, pageConfig.titlePaint)
+            canvas.drawText(pageData.title, left, base, pageConfig.titlePaint)
             base += pageConfig.titleMargin
         }
         base += pageConfig.getTextSize()
-        for (i in 0 until page.size()) {
-            val line = page[i]
+        for (i in 0 until pageData.size()) {
+            val line = pageData[i]
             left = pageConfig.contentPaddingLeft
             for (j in 0 until line.size()) {
                 val c = line[j]
@@ -125,11 +127,11 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
         }
     }
 
-    override fun createPage(page: Page): Bitmap {
+    override fun createPage(pageData: PageData): Bitmap {
         // 在背景上绘制文字
         val res = pageConfig.getBackground().copy(Bitmap.Config.RGB_565, true)
         val canvas = Canvas(res)
-        drawPage(page, canvas)
+        drawPage(pageData, canvas)
         return res
     }
 }

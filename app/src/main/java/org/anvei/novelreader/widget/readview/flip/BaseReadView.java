@@ -6,7 +6,6 @@ import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,13 +55,16 @@ public abstract class BaseReadView<E extends View> extends ViewGroup {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         setMeasuredDimension(widthSize, heightSize);
         // 设置view的测量大小
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != GONE) {
-                child.measure(widthMeasureSpec, heightMeasureSpec);
+                // 将会支持padding
+                measureChild(child, widthMeasureSpec, heightMeasureSpec);
             }
         }
     }
@@ -74,7 +76,7 @@ public abstract class BaseReadView<E extends View> extends ViewGroup {
             int height = child.getMeasuredHeight();
             int width = child.getMeasuredWidth();
             // 子view全部叠放在一起，但是最顶层的子view被设置了scrollX，所以滑出了屏幕
-            child.layout(0, 0, width, height);
+            child.layout(getPaddingLeft(), getPaddingTop(), width, height);
             // curPageIndex之前的页面全部需要滑动到主视图之外
             if (i > curPagePointer) {
                 child.scrollTo(-getPrevScrollWidth(), 0);

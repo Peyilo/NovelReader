@@ -1,6 +1,6 @@
 package org.anvei.novelreader.widget.readview.bean;
 
-import org.anvei.novelreader.widget.readview.page.Page;
+import org.anvei.novelreader.widget.readview.page.PageData;
 
 import java.util.List;
 
@@ -16,14 +16,15 @@ public class Chapter {
     private String content;
 
     private String what;
-    private List<Page> pages;
+    private List<PageData> pageData;
 
-    private Status status = Status.NO_CONTENT;
+    private Status status = Status.NO_LOAD;
 
     public enum Status {
-        NO_CONTENT,     // 章节还没有加载
+        NO_LOAD,        // 章节还没有加载
         NO_SPLIT,       // 章节完成了加载但是没有完成分页
         IS_LOADING,     // 在加载中
+        IS_SPLITTING,   // 在切割中
         INITIALIZED     // 章节完成了加载和分页
     }
 
@@ -45,9 +46,6 @@ public class Chapter {
     }
 
     public void setContent(String content) {
-        if (status == Status.NO_CONTENT) {
-            status = Status.NO_SPLIT;
-        }
         this.content = content;
     }
 
@@ -59,18 +57,12 @@ public class Chapter {
         this.what = what;
     }
 
-    public List<Page> getPages() {
-        return pages;
+    public List<PageData> getPages() {
+        return pageData;
     }
 
-    public void setPages(List<Page> pages) {
-        if (pages == null) {
-            status = Status.NO_SPLIT;
-        }
-        if (pages != null && status != Status.INITIALIZED) {
-            status = Status.INITIALIZED;
-        }
-        this.pages = pages;
+    public void setPages(List<PageData> pageData) {
+        this.pageData = pageData;
     }
 
     public Status getStatus() {
