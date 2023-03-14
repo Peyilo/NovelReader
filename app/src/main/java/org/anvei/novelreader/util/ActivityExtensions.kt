@@ -5,8 +5,6 @@ import android.os.Build
 import android.view.View
 import android.view.WindowInsetsController
 import android.view.WindowManager
-import org.anvei.novelreader.App
-import org.anvei.novelreader.widget.readview.loader.LoaderFactory
 
 // 请求全屏模式
 fun Activity.fullScreen() {
@@ -53,6 +51,3 @@ fun Activity.setStatusColor(light: Boolean) {
         }
     }
 }
-
-val Activity.loaderFactory: LoaderFactory
-    get() = App.getLoaderFactory()

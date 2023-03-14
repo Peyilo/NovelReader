@@ -6,9 +6,8 @@ import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.anvei.novelreader.databinding.ActivitySearchResultBinding
+import org.anvei.novelreader.loader.LoaderRepository
 import org.anvei.novelreader.ui.search.ResultAdapter
-import org.anvei.novelreader.util.loaderFactory
-import org.anvei.novelreader.widget.readview.loader.LoaderFactory
 
 class SearchResultActivity : BaseActivity() {
     private lateinit var binding: ActivitySearchResultBinding
@@ -42,7 +41,7 @@ class SearchResultActivity : BaseActivity() {
         // 开始发起请求
         Thread{
             val start = adapter.resultList.size
-            adapter.resultList.addAll(loaderFactory.getLoader(LoaderFactory.SfacgLoaderUID).search(keyword))
+            adapter.resultList.addAll(LoaderRepository.getLoader(LoaderRepository.SfacgLoaderUID).search(keyword))
             val end = adapter.resultList.size
             if (start != end) {
                 runOnUiThread {

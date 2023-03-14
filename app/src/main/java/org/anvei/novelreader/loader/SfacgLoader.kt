@@ -5,8 +5,8 @@ import org.anvei.novelreader.loader.bean.SearchResultItem
 import org.klee.readview.entities.BookData
 import org.klee.readview.entities.ChapData
 
-class SfacgLoader(novelId: Long = 0) : AbsBookLoader(
-    LoaderConstant.SfacgLoaderUID, "SfacgAPP"
+open class SfacgLoader(novelId: Long = 0) : AbsBookLoader(
+    LoaderRepository.SfacgLoaderUID, "SfacgAPP"
 ) {
 
     init {
@@ -15,6 +15,10 @@ class SfacgLoader(novelId: Long = 0) : AbsBookLoader(
 
     private val api = SfacgAPI()
 
+    /**
+     * 变量link优先于o变量
+     * @return 根据当前link、o的值返回一个Long类型的小说id
+     */
     private fun getNovelId(): Long {
         return if (link != null) {
             link!!.toLong()
@@ -29,7 +33,7 @@ class SfacgLoader(novelId: Long = 0) : AbsBookLoader(
         TODO("Not yet implemented")
     }
 
-    override fun loadBook(): BookData {
+    override fun initToc(): BookData {
         val book = BookData()
         val novelId = getNovelId()
         val novelHomeJson = api.getNovelHomeJson(novelId)

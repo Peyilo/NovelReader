@@ -13,12 +13,14 @@ abstract class AbsBookLoader(
 
     /**
      * 小说加载器的搜索功能
+     * @param keyword
+     * @return 搜索结果
      */
     abstract fun search(keyword: String): List<SearchResultItem>
 
-    fun loadBook(link: String) {
+    fun initToc(link: String) {
         this.link = link
-        loadBook()
+        initToc()
     }
 
 }

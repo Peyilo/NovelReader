@@ -5,9 +5,21 @@ package org.anvei.novelreader.loader
  */
 object LoaderRepository {
 
-    fun getLoader(loadUID: Int): AbsBookLoader {
+    const val NativeLoaderUID = 1
+    const val SfacgLoaderUID = 2
 
-        TODO()
+    private val nativeLoader by lazy {  }
+    private val sfacgLoader by lazy { SfacgLoader() }
+
+    fun getLoader(loadUID: Int): AbsBookLoader {
+        return when (loadUID) {
+            SfacgLoaderUID -> {
+                sfacgLoader
+            }
+            else -> {
+                throw IllegalStateException()
+            }
+        }
     }
 
 }

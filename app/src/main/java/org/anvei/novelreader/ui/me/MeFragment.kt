@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import org.anvei.novelreader.R
 import org.anvei.novelreader.activity.NovelHomeActivity
 import org.anvei.novelreader.activity.ReadActivity
-import org.anvei.novelreader.widget.readview.loader.LoaderFactory
+import org.anvei.novelreader.loader.LoaderRepository
 
 class MeFragment : Fragment() {
     override fun onCreateView(
@@ -20,10 +20,10 @@ class MeFragment : Fragment() {
     ): View? {
         val view =  inflater.inflate(R.layout.fragment_me, container, false)
         view.findViewById<Button>(R.id.test1).setOnClickListener {
-            ReadActivity.start(context!!, LoaderFactory.SfacgLoaderUID, "591785")
+            ReadActivity.start(context!!, LoaderRepository.SfacgLoaderUID, "591785")
         }
         view.findViewById<Button>(R.id.test2).setOnClickListener {
-            ReadActivity.start(context!!, LoaderFactory.SfacgLoaderUID, "217202")
+            ReadActivity.start(context!!, LoaderRepository.SfacgLoaderUID, "217202")
         }
         view.findViewById<Button>(R.id.test3).setOnClickListener {
             startActivity(Intent(context, NovelHomeActivity::class.java))

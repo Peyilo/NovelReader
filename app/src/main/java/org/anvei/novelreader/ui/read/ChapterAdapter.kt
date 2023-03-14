@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import org.anvei.novelreader.R
-import org.anvei.novelreader.widget.readview.bean.Chapter
+import org.klee.readview.entities.BookData
 
-class ChapterAdapter(private val chapterList: List<Chapter>) : RecyclerView.Adapter<ChapterAdapter.Holder>() {
+class ChapterAdapter(private val book: BookData) : RecyclerView.Adapter<ChapterAdapter.Holder>() {
     var onItemClickListener: OnItemClickListener? = null
 
     class Holder(view: View) : RecyclerView.ViewHolder(view) {
@@ -22,7 +22,7 @@ class ChapterAdapter(private val chapterList: List<Chapter>) : RecyclerView.Adap
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        val chapter = chapterList[position]
+        val chapter = book.getChapter(position + 1)
         holder.chapterTitle.text = chapter.title
         holder.chapterTitle.setOnClickListener {
             // 章节跳转
@@ -30,7 +30,7 @@ class ChapterAdapter(private val chapterList: List<Chapter>) : RecyclerView.Adap
         }
     }
 
-    override fun getItemCount(): Int = chapterList.size
+    override fun getItemCount(): Int = book.chapCount
 
     interface OnItemClickListener {
         fun onClick(chapterIndex: Int)
