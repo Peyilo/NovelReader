@@ -80,7 +80,7 @@ public class ReadView extends BaseReadView<ReadPage> {
      * 当更新ReadPage时的回调监听
      */
     public interface OnUpdatePageListener {
-        void onUpdatePage(ReadPage page, int chapterIndex);
+        void onUpdatePage(ReadPage page, PageData pageData);
     }
 
     /**
@@ -177,7 +177,7 @@ public class ReadView extends BaseReadView<ReadPage> {
                     PageData nextPageData = getNextPageData();
                     convertView.setPage(nextPageData);
                     if (onUpdatePageListener != null) {
-                        onUpdatePageListener.onUpdatePage(convertView, nextPageData.getChapIndex());
+                        onUpdatePageListener.onUpdatePage(convertView, nextPageData);
                     }
                 }
                 break;
@@ -186,7 +186,7 @@ public class ReadView extends BaseReadView<ReadPage> {
                     PageData prePageData = getPrePageData();
                     convertView.setPage(prePageData);
                     if (onUpdatePageListener != null) {
-                        onUpdatePageListener.onUpdatePage(convertView, prePageData.getChapIndex());
+                        onUpdatePageListener.onUpdatePage(convertView, prePageData);
                     }
                 }
                 break;
@@ -280,7 +280,9 @@ public class ReadView extends BaseReadView<ReadPage> {
     protected PageData getNextPageData() {
         Chapter chapter = book.getChapter(chapterIndex);
         List<PageData> pageData = chapter.getPages();
-        assert pageData != null;
+        if (pageData == null) {
+            return getPageData(chapterIndex + 1, 1);
+        }
         if (pageIndex < pageData.size()) {          // 当前章节内有下一页
             return getPageData(chapterIndex, pageIndex + 1);
         } else {                                    // 当前分页为本章节的最后一页
@@ -312,7 +314,11 @@ public class ReadView extends BaseReadView<ReadPage> {
                 }
                 break;
         }
-        throw new IllegalStateException("未知状态！");
+        PageData pageData = new PageData(chapterIndex, pageIndex);
+        pageData.addLine("正在加载中...");
+        pageData.setTitle(book.getChapter(chapterIndex).getTitle());
+        pageData.setIsFirstPage(true);
+        return pageData;
     }
 
     /**
@@ -399,14 +405,14 @@ public class ReadView extends BaseReadView<ReadPage> {
         ReadPage curPageView = getPageView(0);
         curPageView.setPage(curPageData);
         if (onUpdatePageListener != null) {
-            onUpdatePageListener.onUpdatePage(curPageView, curPageData.getChapIndex());
+            onUpdatePageListener.onUpdatePage(curPageView, curPageData);
         }
         if (hasNextPage()) {
             PageData nextPageData = getNextPageData();
             ReadPage nextPageView = getPageView(1);
             nextPageView.setPage(nextPageData);
             if (onUpdatePageListener != null) {
-                onUpdatePageListener.onUpdatePage(nextPageView, nextPageData.getChapIndex());
+                onUpdatePageListener.onUpdatePage(nextPageView, nextPageData);
             }
         }
         if (hasPrePage()) {
@@ -414,7 +420,7 @@ public class ReadView extends BaseReadView<ReadPage> {
             ReadPage prePageView = getPageView(-1);
             prePageView.setPage(prePageData);
             if (onUpdatePageListener != null) {
-                onUpdatePageListener.onUpdatePage(prePageView, prePageData.getChapIndex());
+                onUpdatePageListener.onUpdatePage(prePageView, prePageData);
             }
         }
     }
@@ -467,6 +473,14 @@ public class ReadView extends BaseReadView<ReadPage> {
      */
     public void preChapter() {
         jumpToChapter(chapterIndex - 1);
+    }
+
+    public boolean hasNextChapter() {
+        return chapterIndex != getChapterCount();
+    }
+
+    public boolean hasPreChapter() {
+        return chapterIndex != 1;
     }
 
     // 获取当前章节的分页数量

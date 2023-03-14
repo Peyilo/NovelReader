@@ -3,8 +3,10 @@ package org.anvei.novelreader.widget.readview.page
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.text.TextUtils
+import android.util.Log
 import org.anvei.novelreader.widget.readview.bean.Chapter
 
+private const val TAG = "PageFactory"
 class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
 
     override fun splitPage(chapter: Chapter, chapterIndex: Int, replace: String): List<PageData> {
@@ -13,8 +15,7 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
         if (TextUtils.isEmpty(content)) {
             content = replace
         }
-        // 最终返回的页面数据
-        val list: MutableList<PageData> = ArrayList()
+        val result: MutableList<PageData> = ArrayList()
         // 先将章节内容切割成段落
         val paras = content.split("\n")
         // 页面的宽高参数
@@ -27,7 +28,7 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
         var remainedWidth = width                       // 剩余的高度和宽度
         val textSize = pageConfig.getTextSize()         // 字符大小
         val textPaint = pageConfig.textPaint            // 绘制章节内容的Paint
-        var pageData = PageData(chapterIndex)
+        var pageData = PageData(chapterIndex, result.size + 1)
         var line = Line()
         var isFirst = true
         var dimen: Float
@@ -56,9 +57,8 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
                             pageData.title = chapter.title
                             isFirst = false
                         }
-                        list.add(pageData)
-                        pageData =
-                            PageData(chapterIndex)
+                        result.add(pageData)
+                        pageData = PageData(chapterIndex, result.size + 1)
                         remainedHeight = height
                     }
                 }
@@ -76,8 +76,8 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
                             pageData.title = chapter.title
                             isFirst = false
                         }
-                        list.add(pageData)
-                        pageData = PageData(chapterIndex)
+                        result.add(pageData)
+                        pageData = PageData(chapterIndex, result.size + 1)
                         remainedHeight = height
                     }
                     break
@@ -85,17 +85,19 @@ class PageFactory(private val pageConfig: PageConfig) : IPageFactory {
                 remainedWidth -= (dimen + pageConfig.textMargin).toInt()
             }
         }
-        if (list.size == 0) {
+        if (result.size == 0) {
             if (isFirst) {
                 pageData.setIsFirstPage(true)
                 pageData.title = chapter.title
             }
-            list.add(pageData)
+            result.add(pageData)
+        } else if (pageData.size() != 0) {
+            result.add(pageData)
         }
-        if (pageData.size() != 0) {
-            list.add(pageData)
+        if (chapterIndex > 120) {
+            Log.d(TAG, "splitPage: ")
         }
-        return list
+        return result
     }
 
     private fun drawPage(pageData: PageData, canvas: Canvas) {

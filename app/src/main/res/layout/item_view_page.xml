@@ -2,8 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/status_bar_height"
-    android:paddingBottom="5dp"
     android:background="@color/white">
 
     <TextView
@@ -13,26 +11,49 @@
         android:layout_alignParentTop="true"
         android:gravity="center"
         android:textSize="11sp"
-        android:text="章节名"
-        android:lines="1"/>
+        android:textColor="@color/page_view_light_gray"
+        android:lines="1"
+        android:paddingTop="30dp"
+        android:paddingBottom="20dp"/>
 
-    <org.anvei.novelreader.widget.readview.ContentView
+    <org.klee.readview.widget.ContentView
         android:id="@+id/page_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingVertical="8dp"
         android:paddingHorizontal="10dp"
         android:layout_below="@id/page_header"
-        android:layout_above="@id/page_footer"/>
+        android:layout_above="@id/page_footer"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"/>
 
-    <TextView
+    <RelativeLayout
         android:id="@+id/page_footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:gravity="center"
-        android:textSize="11sp"
-        android:lines="1"
-        android:text="页脚"/>
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="6dp">
+        <TextView
+            android:id="@+id/page_footer_process"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:gravity="center"
+            android:textSize="11sp"
+            android:textColor="@color/page_view_light_gray"/>
+        <TextClock
+            android:id="@+id/page_footer_clock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:format24Hour="HH:mm"
+            android:textColor="@color/page_view_light_gray"
+            android:textSize="11sp" />
+    </RelativeLayout>
 
 </RelativeLayout>

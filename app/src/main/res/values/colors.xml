@@ -11,4 +11,6 @@
     <color name="chapter_list_item_loaded">#000000</color>
     <color name="chapter_list_item_unloaded">#454545</color>
     <color name="chapter_list_splitter">#C8C8C8</color>
+
+    <color name="page_view_light_gray">#929292</color>
 </resources>

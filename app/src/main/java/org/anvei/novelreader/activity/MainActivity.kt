@@ -8,7 +8,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import org.anvei.novelreader.R
 import org.anvei.novelreader.databinding.ActivityMainBinding
-import org.anvei.novelreader.util.StatusBarUtils
 
 class MainActivity : BaseActivity() {
 
@@ -18,7 +17,6 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        StatusBarUtils.requestFullScreen(window, binding.root, true, false) // 沉浸式状态栏
         // 导航栏
         val navView: BottomNavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_activity_main)

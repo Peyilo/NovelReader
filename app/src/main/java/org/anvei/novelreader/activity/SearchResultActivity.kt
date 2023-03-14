@@ -7,7 +7,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.anvei.novelreader.databinding.ActivitySearchResultBinding
 import org.anvei.novelreader.ui.search.ResultAdapter
-import org.anvei.novelreader.util.StatusBarUtils
+import org.anvei.novelreader.util.loaderFactory
 import org.anvei.novelreader.widget.readview.loader.LoaderFactory
 
 class SearchResultActivity : BaseActivity() {
@@ -17,7 +17,6 @@ class SearchResultActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        StatusBarUtils.requestFullScreen(window, binding.root, true, false)
         val keyword = intent.getStringExtra(KEYWORD)
         binding.resultBar.setText(keyword)
         adapter = ResultAdapter(this)
@@ -43,7 +42,7 @@ class SearchResultActivity : BaseActivity() {
         // 开始发起请求
         Thread{
             val start = adapter.resultList.size
-            adapter.resultList.addAll(getLoaderFactory().getLoader(LoaderFactory.SfacgLoaderUID).search(keyword))
+            adapter.resultList.addAll(loaderFactory.getLoader(LoaderFactory.SfacgLoaderUID).search(keyword))
             val end = adapter.resultList.size
             if (start != end) {
                 runOnUiThread {

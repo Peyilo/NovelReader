@@ -5,7 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
+import android.os.Looper;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,9 +57,7 @@ public abstract class BaseReadView<E extends View> extends ViewGroup {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         setMeasuredDimension(widthSize, heightSize);
         // 设置view的测量大小
         for (int i = 0; i < getChildCount(); i++) {
@@ -76,7 +76,7 @@ public abstract class BaseReadView<E extends View> extends ViewGroup {
             int height = child.getMeasuredHeight();
             int width = child.getMeasuredWidth();
             // 子view全部叠放在一起，但是最顶层的子view被设置了scrollX，所以滑出了屏幕
-            child.layout(getPaddingLeft(), getPaddingTop(), width, height);
+            child.layout(0, 0, width, height);
             // curPageIndex之前的页面全部需要滑动到主视图之外
             if (i > curPagePointer) {
                 child.scrollTo(-getPrevScrollWidth(), 0);
@@ -112,13 +112,9 @@ public abstract class BaseReadView<E extends View> extends ViewGroup {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (getChildCount() > 0 && isScrolling()) {
-            // 如果还在执行翻页动画，就直接强制结束
-            scroller.forceFinished(true);
-            scrolledView.scrollTo(scroller.getFinalX(), scroller.getFinalY());
-        }
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             startX = ev.getX();
+            Log.d(TAG, "dispatchTouchEvent: startX = " + startX);
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -129,6 +125,11 @@ public abstract class BaseReadView<E extends View> extends ViewGroup {
         final float distance = startX - event.getX();
         switch (event.getAction()) {
             case MotionEvent.ACTION_MOVE:
+                if (getChildCount() > 0 && isScrolling()) {
+                    // 如果还在执行翻页动画，就直接强制结束
+                    scroller.forceFinished(true);
+                    scrolledView.scrollTo(scroller.getFinalX(), scroller.getFinalY());
+                }
                 // 计算滑动距离，先确定本系列事件中最初的滑动方向，并确定被拖动的子view
                 if (initialDirection == PageDirection.NONE) {
                     if (distance > 0 && hasNextPage() && getNextViewCount() > 0) {
@@ -175,9 +176,9 @@ public abstract class BaseReadView<E extends View> extends ViewGroup {
                             endDirection = PageDirection.TO_PREV;
                         }
                     }
+                    initialDirection = PageDirection.NONE;
                     scroller.startScroll(scrollX, 0, dx, 0, flipDuration);
                     postInvalidate();
-                    initialDirection = PageDirection.NONE;
                     if (endDirection == PageDirection.TO_NEXT) {
                         for (OnFlipListener onFlipListener : onFlipListenerList) {
                             onFlipListener.onNext();

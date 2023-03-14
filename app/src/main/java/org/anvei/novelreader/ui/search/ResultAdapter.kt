@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import org.anvei.novelreader.R
 import org.anvei.novelreader.activity.ReadActivity
-import org.anvei.novelreader.ui.search.bean.SearchResultItem
+import org.anvei.novelreader.loader.bean.SearchResultItem
 
 /**
  * 搜索结果列表的适配器

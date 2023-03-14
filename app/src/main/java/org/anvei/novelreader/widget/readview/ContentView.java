@@ -22,7 +22,6 @@ public class ContentView extends View {
     private PageData pageData;
     private Bitmap cache;
     private boolean needRecreate = false;
-
     private PageConfig pageConfig;
 
     public ContentView(Context context) {

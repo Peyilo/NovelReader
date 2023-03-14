@@ -13,7 +13,6 @@ class SearchActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        StatusBarUtils.requestFullScreen(window, binding.root, true, false)
 
         // 返回上一个Activity
         binding.searchCancelBtn.setOnClickListener {

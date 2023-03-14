@@ -1,7 +1,7 @@
 package org.anvei.novelreader.widget.readview.loader
 
 import org.anvei.novel.api.HbookerAPI
-import org.anvei.novelreader.ui.search.bean.SearchResultItem
+import org.anvei.novelreader.loader.bean.SearchResultItem
 import org.anvei.novelreader.widget.readview.bean.Book
 import org.anvei.novelreader.widget.readview.bean.Chapter
 

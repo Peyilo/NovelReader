@@ -6,16 +6,17 @@ import java.util.List;
 public class PageData {
 
     private final int chapIndex;
+    private final int pageIndex;
 
     private final List<Line> lineList;
 
     private String title;
 
     private boolean isFirstPage = false;
-    private boolean isLoading = false;
 
-    public PageData(int chapIndex) {
+    public PageData(int chapIndex, int pageIndex) {
         this.chapIndex = chapIndex;
+        this.pageIndex = pageIndex;
         this.lineList = new ArrayList<>();
     }
 
@@ -45,20 +46,16 @@ public class PageData {
         return chapIndex;
     }
 
+    public int getPageIndex() {
+        return pageIndex;
+    }
+
     public boolean isFirstPage() {
         return isFirstPage;
     }
 
     public void setIsFirstPage(boolean firstPage) {
         isFirstPage = firstPage;
-    }
-
-    public boolean isLoading() {
-        return isLoading;
-    }
-
-    public void setIsLoading(boolean loading) {
-        isLoading = loading;
     }
 
     public String getTitle() {
