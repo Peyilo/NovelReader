@@ -18,7 +18,7 @@
     <!--ReadActivity相关字符串-->
     <string name="toc">目录</string>
     <string name="detail">详情</string>
-    <string name="landscape">切换横屏</string>
+    <string name="landscape">切换屏幕方向</string>
     <string name="setting">设置</string>
     <string name="font_setting">字体设置</string>
     <string name="reduce_font_size">A-</string>

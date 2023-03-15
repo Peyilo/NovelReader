@@ -23,7 +23,7 @@ class MeFragment : Fragment() {
             ReadActivity.start(context!!, LoaderRepository.SfacgLoaderUID, "591785")
         }
         view.findViewById<Button>(R.id.test2).setOnClickListener {
-            ReadActivity.start(context!!, LoaderRepository.SfacgLoaderUID, "217202")
+            ReadActivity.start(context!!, LoaderRepository.NativeLoaderUID, "cache.txt")
         }
         view.findViewById<Button>(R.id.test3).setOnClickListener {
             startActivity(Intent(context, NovelHomeActivity::class.java))

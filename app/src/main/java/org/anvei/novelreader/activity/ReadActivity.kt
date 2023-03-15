@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.anvei.novelreader.R
 import org.anvei.novelreader.databinding.ActivityReadBinding
-import org.anvei.novelreader.loader.AbsBookLoader
+import org.anvei.novelreader.loader.BaseBookLoader
 import org.anvei.novelreader.loader.LoaderRepository
 import org.anvei.novelreader.ui.read.ChapterAdapter
 import org.klee.readview.entities.BookData
@@ -29,17 +29,26 @@ private const val TAG = "ReadViewTest"
 class ReadActivity : BaseActivity() {
 
     private lateinit var binding: ActivityReadBinding
-    private lateinit var loader: AbsBookLoader
+    private lateinit var loader: BaseBookLoader
+
+    private val drawer get() = binding.readDrawer
+
     private val readView: ReadView get() = binding.readView
+    private val bottomView get() = binding.readBottomLinear
+    private val settingView get() = binding.readSettingLinear
 
-    private val settingView get() = binding.rvSettingLinear
-    private val fontSettingView get() = binding.rpSettingFontLinear
-
+    private val chapSeekBar get() = binding.chapSeekbar
     private val nextChapterBtn get() = binding.nextChapBtn
     private val prevChapBtn get() = binding.prevChapBtn
     private val showTocBtn get() = binding.showTocBtn
+    private val switchOrientationBtn get() = binding.switchOrientationBtn
+    private val settingBtn get() = binding.settingBtn
+
+    private val tocRecycler get() = binding.tocRecycler
+
     private val reduceFontSizeBtn get() = binding.reduceFontSizeBtn
     private val increaseFontSizeBtn get() = binding.increaseFontSizeBtn
+    private val revertFontSizeBtn get() = binding.revertFontSizeBtn
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +89,7 @@ class ReadActivity : BaseActivity() {
             // 小说加载完成以后，刷新章节列表
             override fun onTocInitSuccess(book: BookData) {
                runOnUiThread {
-                   val recyclerView = binding.readDrawer.findViewById<RecyclerView>(R.id.read_chap_list_recycler)
+                   val recyclerView = binding.readDrawer.findViewById<RecyclerView>(R.id.toc_recycler)
                    recyclerView.adapter = ChapterAdapter(book).apply {
                        setOnItemClickListener {
                            binding.readView.setProcess(it)
@@ -129,8 +138,8 @@ class ReadActivity : BaseActivity() {
      * 根据当前视图状态控制点击对应的行为
      */
     private fun onMiddleRegionClick() {
-        if (!settingView.isVisible) {
-            if (!fontSettingView.isVisible) {
+        if (!bottomView.isVisible) {
+            if (!settingView.isVisible) {
                 openSetting(true)
             } else {
                 openFontSetting(false)
@@ -146,9 +155,9 @@ class ReadActivity : BaseActivity() {
      */
     private fun openSetting(open: Boolean) {
         if (open) {
-            settingView.visible()
+            bottomView.visible()
         } else {
-            settingView.invisible()
+            bottomView.invisible()
         }
     }
 
@@ -158,21 +167,21 @@ class ReadActivity : BaseActivity() {
      */
     private fun openFontSetting(open: Boolean) {
         if (open) {
-            fontSettingView.visible()
+            settingView.visible()
         } else {
-            fontSettingView.invisible()
+            settingView.invisible()
         }
     }
 
     private fun initSettingView() {
         showTocBtn.setOnClickListener {
             // 滑动到当前章节处
-            binding.readChapListRecycler.scrollToPosition(readView.curChapIndex - 1)
+            tocRecycler.scrollToPosition(readView.curChapIndex - 1)
             binding.readDrawer.openDrawer(GravityCompat.START)
             openSetting(false)
         }
         // 打开字体设置面板
-        binding.chapterFontSettingBtn.setOnClickListener {
+        settingBtn.setOnClickListener {
             openSetting(false)
             openFontSetting(true)
         }

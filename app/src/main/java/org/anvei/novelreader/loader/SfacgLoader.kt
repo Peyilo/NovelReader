@@ -5,7 +5,7 @@ import org.anvei.novelreader.loader.bean.SearchResultItem
 import org.klee.readview.entities.BookData
 import org.klee.readview.entities.ChapData
 
-open class SfacgLoader(novelId: Long = 0) : AbsBookLoader(
+open class SfacgLoader(novelId: Long = 0) : SearchableLoader(
     LoaderRepository.SfacgLoaderUID, "SfacgAPP"
 ) {
 

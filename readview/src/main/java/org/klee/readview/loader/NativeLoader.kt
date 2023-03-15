@@ -37,13 +37,13 @@ private const val UTF8_BOM_PREFIX = "\uFEFF"       // ZWNBSP字符，UTF-8带BOM
 /**
  * 一个简单的本地小说加载器
  */
-open class NativeLoader(private var file: File) : BookLoader {
+open class NativeLoader(var file: File? = null) : BookLoader {
 
     /**
      * TODO: 处理好文件编码问题
      */
-    protected open val reader: BufferedReader by lazy {
-        BufferedReader(
+    protected open val reader: BufferedReader get() {
+        return BufferedReader(
             InputStreamReader(FileInputStream(file))
         )
     }

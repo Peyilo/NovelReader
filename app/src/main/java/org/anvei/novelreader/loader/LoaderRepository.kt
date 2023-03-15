@@ -11,7 +11,7 @@ object LoaderRepository {
     private val nativeLoader by lazy {  }
     private val sfacgLoader by lazy { SfacgLoader() }
 
-    fun getLoader(loadUID: Int): AbsBookLoader {
+    fun getLoader(loadUID: Int): BaseBookLoader {
         return when (loadUID) {
             SfacgLoaderUID -> {
                 sfacgLoader
@@ -20,6 +20,14 @@ object LoaderRepository {
                 throw IllegalStateException()
             }
         }
+    }
+
+    fun getSearchableLoader(loadUID: Int): Searchable {
+        val loader = getLoader(loadUID)
+        if (loader is Searchable) {
+            return loader
+        }
+        throw IllegalArgumentException("$loadUID 对应的小说加载器并没有实现Searchable接口！" )
     }
 
 }

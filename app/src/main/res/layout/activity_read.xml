@@ -28,7 +28,7 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <LinearLayout
-            android:id="@+id/rv_setting_linear"
+            android:id="@+id/read_bottom_linear"
             android:layout_width="match_parent"
             android:layout_height="135dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -52,7 +52,7 @@
                     android:contentDescription="@string/des_prev_chap" />
 
                 <SeekBar
-                    android:id="@+id/rv_seekbar"
+                    android:id="@+id/chap_seekbar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/prev_chap_btn"
@@ -70,7 +70,6 @@
             </RelativeLayout>
 
             <LinearLayout
-                android:id="@+id/chapterPageSettingLiner"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
@@ -84,7 +83,7 @@
                     android:text="@string/toc"
                     style="?android:attr/buttonBarButtonStyle" />
                 <Button
-                    android:id="@+id/chapter_page_novel_home_btn"
+                    android:id="@+id/novel_home_btn"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"
@@ -93,7 +92,7 @@
                     android:text="@string/detail"
                     style="?android:attr/buttonBarButtonStyle" />
                 <Button
-                    android:id="@+id/hv_trans_btn"
+                    android:id="@+id/switch_orientation_btn"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"
@@ -102,7 +101,7 @@
                     android:text="@string/landscape"
                     style="?android:attr/buttonBarButtonStyle" />
                 <Button
-                    android:id="@+id/chapter_font_setting_btn"
+                    android:id="@+id/setting_btn"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"
@@ -114,7 +113,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/rp_setting_font_linear"
+            android:id="@+id/read_setting_linear"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -133,6 +132,7 @@
                 android:textSize="15sp"
                 style="?android:attr/buttonBarButtonStyle" />
             <Button
+                android:id="@+id/revert_font_size_btn"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -159,7 +159,7 @@
         android:background="@color/white"
         android:paddingTop="@dimen/status_bar_height">
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/read_chap_list_recycler"
+            android:id="@+id/toc_recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </LinearLayout>

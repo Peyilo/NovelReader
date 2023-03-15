@@ -10,8 +10,10 @@ import org.anvei.novelreader.loader.LoaderRepository
 import org.anvei.novelreader.ui.search.ResultAdapter
 
 class SearchResultActivity : BaseActivity() {
+
     private lateinit var binding: ActivitySearchResultBinding
     private lateinit var adapter: ResultAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchResultBinding.inflate(layoutInflater)
@@ -41,7 +43,12 @@ class SearchResultActivity : BaseActivity() {
         // 开始发起请求
         Thread{
             val start = adapter.resultList.size
-            adapter.resultList.addAll(LoaderRepository.getLoader(LoaderRepository.SfacgLoaderUID).search(keyword))
+            getAvailableLoaderUIDList().forEach {
+                val searchable = LoaderRepository.getSearchableLoader(it)
+                adapter.resultList.addAll(
+                    searchable.search(keyword)
+                )
+            }
             val end = adapter.resultList.size
             if (start != end) {
                 runOnUiThread {
@@ -49,6 +56,10 @@ class SearchResultActivity : BaseActivity() {
                 }
             }
         }.start()
+    }
+
+    private fun getAvailableLoaderUIDList(): Array<Int> {
+        return arrayOf(LoaderRepository.SfacgLoaderUID)
     }
 
     companion object {
