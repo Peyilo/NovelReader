@@ -92,20 +92,21 @@ class ReadData : BitmapProvider {
      * @return 是否初始化成功
      */
     fun requestInitToc(): Boolean {
-        return try {
-            val book = bookLoader.initToc()
+        val book: BookData
+        try {
+            book = bookLoader.initToc()
             if (book.isEmpty()) {
                 book.addChapter(createEmptyChap())
             }
             this.book = book
-            viewCallBack.onTocInitSuccess(book)
-            userCallback?.onTocInitSuccess(book)
-            true
         } catch (e: Exception) {
             viewCallBack.onTocInitFailed(e)
             userCallback?.onTocInitFailed(e)
-            false
+            return false
         }
+        viewCallBack.onTocInitSuccess(book)
+        userCallback?.onTocInitSuccess(book)
+        return true
     }
 
     fun hasNextChap(): Boolean {

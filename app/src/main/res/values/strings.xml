@@ -14,11 +14,24 @@
 
     <!--SearchActivity的相关字符串-->
     <string name="cancel">取消</string>
+
+    <!--ReadActivity相关字符串-->
+    <string name="toc">目录</string>
+    <string name="detail">详情</string>
+    <string name="landscape">切换横屏</string>
+    <string name="setting">设置</string>
+    <string name="font_setting">字体设置</string>
+    <string name="reduce_font_size">A-</string>
+    <string name="increase_font_size">A+</string>
+    <string name="revert_font_size">A</string>
+
     <!--描述类字符串-->
     <string name="des_book_cover">书籍封面</string>
     <string name="des_bookshelf_item_manage">书本管理按钮</string>
     <string name="des_back">返回键</string>
     <string name="des_read_history">阅读历史记录</string>
     <string name="des_bookshelf_menu_btn">书架菜单按钮</string>
+    <string name="des_prev_chap">切换上一章</string>
+    <string name="des_next_chap">切换下一章</string>
 
 </resources>

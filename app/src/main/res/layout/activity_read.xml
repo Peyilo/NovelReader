@@ -19,7 +19,7 @@
         <ProgressBar
             android:id="@+id/rv_process"
             tools:visibility="visible"
-            android:visibility="gone"
+            android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -34,7 +34,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:background="@color/white"
             android:orientation="vertical"
-            android:visibility="gone"
+            android:visibility="invisible"
             tools:visibility="gone">
 
             <RelativeLayout
@@ -43,30 +43,30 @@
                 android:layout_marginHorizontal="5dp"
                 android:paddingTop="5dp">
                 <ImageButton
-                    android:id="@+id/last_chapter"
+                    android:id="@+id/prev_chap_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:src="@drawable/ic_arrow_left"
                     android:backgroundTint="@color/transparent"
-                    android:contentDescription="切换上一章" />
+                    android:contentDescription="@string/des_prev_chap" />
 
                 <SeekBar
                     android:id="@+id/rv_seekbar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@id/last_chapter"
-                    android:layout_toStartOf="@id/next_chapter"
+                    android:layout_toEndOf="@id/prev_chap_btn"
+                    android:layout_toStartOf="@id/next_chap_btn"
                     android:layout_marginTop="15dp"/>
 
                 <ImageButton
-                    android:id="@+id/next_chapter"
+                    android:id="@+id/next_chap_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:src="@drawable/ic_arrow_right"
                     android:backgroundTint="@color/transparent"
-                    android:contentDescription="切换下一章" />
+                    android:contentDescription="@string/des_next_chap" />
             </RelativeLayout>
 
             <LinearLayout
@@ -75,13 +75,13 @@
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
                 <Button
-                    android:id="@+id/chapter_list_display_btn"
+                    android:id="@+id/show_toc_btn"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:drawableTop="@drawable/ic_chapter_content"
-                    android:text="目录"
+                    android:text="@string/toc"
                     style="?android:attr/buttonBarButtonStyle" />
                 <Button
                     android:id="@+id/chapter_page_novel_home_btn"
@@ -90,7 +90,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:drawableTop="@drawable/ic_read_page_novel_home"
-                    android:text="详情"
+                    android:text="@string/detail"
                     style="?android:attr/buttonBarButtonStyle" />
                 <Button
                     android:id="@+id/hv_trans_btn"
@@ -99,7 +99,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:drawableTop="@drawable/ic_read_page_translation"
-                    android:text="切换横屏"
+                    android:text="@string/landscape"
                     style="?android:attr/buttonBarButtonStyle" />
                 <Button
                     android:id="@+id/chapter_font_setting_btn"
@@ -108,7 +108,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:drawableTop="@drawable/ic_font_setting"
-                    android:text="设置"
+                    android:text="@string/setting"
                     style="?android:attr/buttonBarButtonStyle" />
             </LinearLayout>
         </LinearLayout>
@@ -119,41 +119,36 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             android:background="@color/white"
-            android:orientation="vertical"
-            android:visibility="gone"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:visibility="invisible"
             tools:visibility="gone">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="3">
-                <Button
-                    android:id="@+id/rp_font_size_subtract"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="A-"
-                    android:textSize="15sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-                <Button
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="A"
-                    android:textSize="15sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-                <Button
-                    android:id="@+id/rp_font_size_add"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="A+"
-                    android:textSize="15sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-            </LinearLayout>
+            <Button
+                android:id="@+id/reduce_font_size_btn"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/reduce_font_size"
+                android:textSize="15sp"
+                style="?android:attr/buttonBarButtonStyle" />
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/revert_font_size"
+                android:textSize="15sp"
+                style="?android:attr/buttonBarButtonStyle" />
+            <Button
+                android:id="@+id/increase_font_size_btn"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/increase_font_size"
+                android:textSize="15sp"
+                style="?android:attr/buttonBarButtonStyle" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
     <LinearLayout

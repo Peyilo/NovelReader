@@ -9,7 +9,7 @@ import org.anvei.novelreader.R
 import org.klee.readview.entities.BookData
 
 class ChapterAdapter(private val book: BookData) : RecyclerView.Adapter<ChapterAdapter.Holder>() {
-    var onItemClickListener: OnItemClickListener? = null
+    private var onItemClickListener: OnItemClickListener? = null
 
     class Holder(view: View) : RecyclerView.ViewHolder(view) {
         val chapterTitle: TextView = view.findViewById(R.id.chapter_list_item_text)
@@ -31,6 +31,18 @@ class ChapterAdapter(private val book: BookData) : RecyclerView.Adapter<ChapterA
     }
 
     override fun getItemCount(): Int = book.chapCount
+
+    fun setOnItemClickListener(listener: OnItemClickListener) {
+        this.onItemClickListener = listener
+    }
+
+    fun setOnItemClickListener(listener: (chapIndex: Int) -> Unit) {
+        setOnItemClickListener(object : OnItemClickListener {
+            override fun onClick(chapterIndex: Int) {
+                listener(chapterIndex)
+            }
+        })
+    }
 
     interface OnItemClickListener {
         fun onClick(chapterIndex: Int)

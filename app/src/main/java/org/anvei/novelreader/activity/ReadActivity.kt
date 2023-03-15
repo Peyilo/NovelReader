@@ -3,11 +3,10 @@ package org.anvei.novelreader.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.anvei.novelreader.R
@@ -18,6 +17,8 @@ import org.anvei.novelreader.ui.read.ChapterAdapter
 import org.klee.readview.entities.BookData
 import org.klee.readview.entities.ChapData
 import org.klee.readview.entities.ChapterStatus
+import org.klee.readview.utils.invisible
+import org.klee.readview.utils.visible
 import org.klee.readview.widget.FlipMode
 import org.klee.readview.widget.PageView
 import org.klee.readview.widget.ReadView
@@ -31,6 +32,15 @@ class ReadActivity : BaseActivity() {
     private lateinit var loader: AbsBookLoader
     private val readView: ReadView get() = binding.readView
 
+    private val settingView get() = binding.rvSettingLinear
+    private val fontSettingView get() = binding.rpSettingFontLinear
+
+    private val nextChapterBtn get() = binding.nextChapBtn
+    private val prevChapBtn get() = binding.prevChapBtn
+    private val showTocBtn get() = binding.showTocBtn
+    private val reduceFontSizeBtn get() = binding.reduceFontSizeBtn
+    private val increaseFontSizeBtn get() = binding.increaseFontSizeBtn
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityReadBinding.inflate(layoutInflater)
@@ -38,6 +48,8 @@ class ReadActivity : BaseActivity() {
         prepareLoader()
         initReadView()
         initSettingView()
+        configReadView()
+        openBook()
     }
 
     /**
@@ -49,26 +61,36 @@ class ReadActivity : BaseActivity() {
         loader.link = intent.getStringExtra(LINK)
     }
 
+    /**
+     * 完成ReadView的参数配置
+     */
+    private fun configReadView() {
+        readView.flipMode = FlipMode.Cover
+    }
+
+    /**
+     * 初始化ReadView，并设置回调监听
+     */
     private fun initReadView() {
         readView.initPage { pageView, _ ->          // 初始化PageView
             pageView.initLayout(R.layout.item_view_page, R.id.page_content,
                 R.id.page_header, R.id.page_footer)
         }
         readView.setCallback(object : ReadViewCallback {
+            // 小说加载完成以后，刷新章节列表
             override fun onTocInitSuccess(book: BookData) {
-                // 小说加载完成以后，更新章节列表
-                val recyclerView = binding.readDrawer.findViewById<RecyclerView>(R.id.read_chap_list_recycler)
-                recyclerView.adapter = ChapterAdapter(book).apply {
-                    onItemClickListener = object : ChapterAdapter.OnItemClickListener {
-                        override fun onClick(chapterIndex: Int) {
-                            binding.readView.setProcess(chapterIndex)
-                            Log.d(TAG, "onClick: onItemClickListener $chapterIndex")
-                            binding.readDrawer.closeDrawer(GravityCompat.START)
-                        }
-                    }
-                }
-                recyclerView.layoutManager = LinearLayoutManager(this@ReadActivity)
+               runOnUiThread {
+                   val recyclerView = binding.readDrawer.findViewById<RecyclerView>(R.id.read_chap_list_recycler)
+                   recyclerView.adapter = ChapterAdapter(book).apply {
+                       setOnItemClickListener {
+                           binding.readView.setProcess(it)
+                           binding.readDrawer.closeDrawer(GravityCompat.START)
+                       }
+                   }
+                   recyclerView.layoutManager = LinearLayoutManager(this@ReadActivity)
+               }
             }
+            // 绑定视图
             override fun onUpdatePage(convertView: PageView, newChap: ChapData, newPageIndex: Int) {
                 val header = convertView.header!! as TextView
                 header.text = newChap.title
@@ -81,30 +103,16 @@ class ReadActivity : BaseActivity() {
             }
 
         })
-        readView.flipMode = FlipMode.Cover
-        // 开始加载小说
-        readView.openBook(loader)
-        // 控制设置面板的开关
         readView.setOnClickRegionListener { xPercent, _ ->
             return@setOnClickRegionListener when (xPercent) {
                 in 0..30 -> {
-                    readView.prevPage()
+                    readView.prevPage()           // 屏幕左侧点击触发上一页
                 }
-                in 70..100 -> {
+                in 70..100 -> {             // 屏幕右侧点击触发下一页
                     readView.nextPage()
                 }
-                in 30..70 -> {
-                    Log.d(TAG, "open setting view")
-                    Toast.makeText(applicationContext, "show setting view", Toast.LENGTH_SHORT).show()
-                    /*if (binding.rvSettingLinear.visibility == View.GONE) {
-                        if (binding.rpSettingFontLinear.visibility == View.GONE) {
-                            openSetting(true)
-                        } else {
-                            openFontSetting(false)
-                        }
-                    } else {
-                        openSetting(false)
-                    }*/
+                in 30..70 -> {              // 中间区域点击触发设置面板
+                    onMiddleRegionClick()
                     true
                 }
                 else -> false
@@ -112,28 +120,56 @@ class ReadActivity : BaseActivity() {
         }
     }
 
-    private fun openSetting(open: Boolean) {
-        if (open) {
-            binding.rvSettingLinear.visibility = View.VISIBLE
+    // 开始加载小说
+    private fun openBook() {
+        readView.openBook(loader)
+    }
+
+    /**
+     * 根据当前视图状态控制点击对应的行为
+     */
+    private fun onMiddleRegionClick() {
+        if (!settingView.isVisible) {
+            if (!fontSettingView.isVisible) {
+                openSetting(true)
+            } else {
+                openFontSetting(false)
+            }
         } else {
-            binding.rvSettingLinear.visibility = View.GONE
+            openSetting(false)
         }
     }
 
+    /**
+     * 控制设置面板的开关
+     * @param open true表示打开控制面板，反之为关闭
+     */
+    private fun openSetting(open: Boolean) {
+        if (open) {
+            settingView.visible()
+        } else {
+            settingView.invisible()
+        }
+    }
+
+    /**
+     * 控制字体大小设置面板的开关
+     * @param open true表示打开控制面板，反之为关闭
+     */
     private fun openFontSetting(open: Boolean) {
         if (open) {
-            binding.rpSettingFontLinear.visibility = View.VISIBLE
+            fontSettingView.visible()
         } else {
-            binding.rpSettingFontLinear.visibility = View.GONE
+            fontSettingView.invisible()
         }
     }
 
     private fun initSettingView() {
-        // 打开目录
-        binding.chapterListDisplayBtn.setOnClickListener {
+        showTocBtn.setOnClickListener {
             // 滑动到当前章节处
             binding.readChapListRecycler.scrollToPosition(readView.curChapIndex - 1)
             binding.readDrawer.openDrawer(GravityCompat.START)
+            openSetting(false)
         }
         // 打开字体设置面板
         binding.chapterFontSettingBtn.setOnClickListener {
@@ -141,37 +177,53 @@ class ReadActivity : BaseActivity() {
             openFontSetting(true)
         }
         // 设置字体大小更改
-        binding.rpFontSizeAdd.setOnClickListener {
-
+        increaseFontSizeBtn.setOnClickListener {
+            readView.apply {
+                if (!setContentSize(getContentSize() + 2)) {
+                    toast("当前字体大小已经是最大值！")
+                }
+            }
         }
-        binding.rpFontSizeSubtract.setOnClickListener {
-
+        reduceFontSizeBtn.setOnClickListener {
+            readView.apply {
+                if (!setContentSize(getContentSize() - 2)) {
+                    toast("当前字体大小已经是最小值！")
+                }
+            }
         }
         // 设置上下章节按钮
-        binding.nextChapter.setOnClickListener {
+        nextChapterBtn.setOnClickListener {
             if (readView.hasNextChap()) {
                 readView.nextChap()
             } else {
-                Toast.makeText(this, "当前已经是最后一章节！", Toast.LENGTH_SHORT).show()
+                toast("当前已经是最后一章节！")
             }
         }
-        binding.lastChapter.setOnClickListener {
+        prevChapBtn.setOnClickListener {
             if (readView.hasPrevChap()) {
                 readView.prevPage()
             } else {
-                Toast.makeText(this, "当前没有上一章！", Toast.LENGTH_SHORT).show()
+                toast("当前已经是第一章！")
             }
         }
     }
 
+    private fun toast(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    }
+
     companion object {
-        const val LOADER_UID = "LOADER_UID"
-        const val LINK = "LINK"
-        // 启动ReadActivity
-        fun start(context: Context, loaderUID: Int, what: String) {
+
+        const val LOADER_UID = "LOADER_UID"         // BookLoader的UID
+        const val LINK = "LINK"                     // 待加载小说的链接
+
+        /**
+         * 启动ReadActivity
+         */
+        fun start(context: Context, loaderUID: Int, link: String) {
             val intent = Intent(context, ReadActivity::class.java)
             intent.putExtra(LOADER_UID, loaderUID)
-            intent.putExtra(LINK, what)
+            intent.putExtra(LINK, link)
             context.startActivity(intent)
         }
     }

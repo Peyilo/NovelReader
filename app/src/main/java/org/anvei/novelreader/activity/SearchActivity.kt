@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import org.anvei.novelreader.databinding.ActivitySearchBinding
-import org.anvei.novelreader.util.StatusBarUtils
 
 private const val TAG = "SearchActivity"
 class SearchActivity : BaseActivity() {
