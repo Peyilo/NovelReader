@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.ReadActivity"
+    tools:context=".ui.read.ReadActivity"
     android:id="@+id/read_drawer">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,7 +30,7 @@
         <LinearLayout
             android:id="@+id/read_bottom_linear"
             android:layout_width="match_parent"
-            android:layout_height="135dp"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             android:background="@color/white"
             android:orientation="vertical"
@@ -78,7 +78,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"
-                    android:gravity="center"
+                    android:gravity="center_horizontal"
                     android:drawableTop="@drawable/ic_chapter_content"
                     android:text="@string/toc"
                     style="?android:attr/buttonBarButtonStyle" />
@@ -87,7 +87,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"
-                    android:gravity="center"
+                    android:gravity="center_horizontal"
                     android:drawableTop="@drawable/ic_read_page_novel_home"
                     android:text="@string/detail"
                     style="?android:attr/buttonBarButtonStyle" />
@@ -96,7 +96,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"
-                    android:gravity="center"
+                    android:gravity="center_horizontal"
                     android:drawableTop="@drawable/ic_read_page_translation"
                     android:text="@string/landscape"
                     style="?android:attr/buttonBarButtonStyle" />
@@ -105,7 +105,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"
-                    android:gravity="center"
+                    android:gravity="center_horizontal"
                     android:drawableTop="@drawable/ic_font_setting"
                     android:text="@string/setting"
                     style="?android:attr/buttonBarButtonStyle" />

@@ -32,12 +32,12 @@ import java.io.FileInputStream
 import java.io.InputStreamReader
 import java.util.regex.Pattern
 
-private const val TAG = "NativeLoader"
+private const val TAG = "DefaultNativeLoader"
 private const val UTF8_BOM_PREFIX = "\uFEFF"       // ZWNBSP字符，UTF-8带BOM格式
 /**
  * 一个简单的本地小说加载器
  */
-open class NativeLoader(var file: File? = null) : BookLoader {
+open class DefaultNativeLoader(var file: File? = null) : BookLoader {
 
     /**
      * TODO: 处理好文件编码问题
@@ -70,6 +70,7 @@ open class NativeLoader(var file: File? = null) : BookLoader {
     }
 
     override fun initToc(): BookData {
+        val reader = this.reader
         val bookData = BookData()
         var chapIndex = 1
         val stringBuilder = StringBuilder()

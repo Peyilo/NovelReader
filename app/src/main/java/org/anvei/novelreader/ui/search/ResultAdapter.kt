@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import org.anvei.novelreader.R
-import org.anvei.novelreader.activity.ReadActivity
+import org.anvei.novelreader.activity.NovelHomeActivity
 import org.anvei.novelreader.loader.bean.SearchResultItem
 
 /**
@@ -59,7 +59,7 @@ class ResultAdapter(val context: Context) : RecyclerView.Adapter<ResultAdapter.H
         }
         holder.view.setOnClickListener {
             // 启动小说主页页面
-            ReadActivity.start(context, result.loaderUID, result.url)
+            NovelHomeActivity.startFromSearch(context, result.loaderUID, result.link, result)
         }
     }
 

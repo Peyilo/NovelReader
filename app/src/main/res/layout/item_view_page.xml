@@ -40,19 +40,20 @@
         android:paddingVertical="6dp">
         <TextView
             android:id="@+id/page_footer_process"
-            android:layout_width="wrap_content"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:gravity="center"
+            android:gravity="center_vertical"
             android:textSize="11sp"
             android:textColor="@color/page_view_light_gray" />
         <TextClock
             android:id="@+id/page_footer_clock"
-            android:layout_width="wrap_content"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:format24Hour="HH:mm"
             android:textColor="@color/page_view_light_gray"
+            android:gravity="end"
             android:textSize="11sp" />
     </RelativeLayout>
 

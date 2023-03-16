@@ -1,5 +1,6 @@
 package org.anvei.novelreader.ui.bookshelf
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,12 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
+import org.anvei.novel.utils.TextUtils
+import org.anvei.novelreader.App
 import org.anvei.novelreader.R
 import org.anvei.novelreader.activity.ReadHistoryActivity
 import org.anvei.novelreader.activity.SearchActivity
@@ -34,7 +38,6 @@ class BookshelfFragment : Fragment() {
         mainBookshelfAdapter = BookshelfAdapter(context!!)
         recyclerView.adapter = mainBookshelfAdapter
         recyclerView.layoutManager = LinearLayoutManager(context)
-        refreshBookshelf()
 
         // 下拉刷新
         val refresh = view.findViewById<SmartRefreshLayout>(R.id.refresh_bookshelf)
@@ -65,20 +68,19 @@ class BookshelfFragment : Fragment() {
         return view
     }
 
+    override fun onStart() {
+        super.onStart()
+        refreshBookshelf()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     private fun refreshBookshelf() {
-        Thread {
-            mainBookshelfAdapter.books = BookRepository.getAllBook()
+        App.startTask {
+            mainBookshelfAdapter.books = BookRepository.getAllBookOnBookshelf()
             activity!!.runOnUiThread {
                 mainBookshelfAdapter.notifyDataSetChanged()
             }
-        }.start()
+        }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        Thread {
-            BookRepository.updateAllBook(mainBookshelfAdapter.books)
-            Log.d(TAG, "onDestroy: updateAllBook success!")
-        }.start()
-    }
 }

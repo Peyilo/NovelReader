@@ -1,11 +1,16 @@
 package org.anvei.novelreader.loader
 
+import android.util.Log
 import org.anvei.novel.api.SfacgAPI
+import org.anvei.novelreader.database.repository.BookRepository
+import org.anvei.novelreader.file.FileManager
+import org.anvei.novelreader.file.bean.TocBean
 import org.anvei.novelreader.loader.bean.SearchResultItem
 import org.klee.readview.entities.BookData
 import org.klee.readview.entities.ChapData
 
-open class SfacgLoader(novelId: Long = 0) : SearchableLoader(
+private const val TAG = "SfacgLoader"
+class SfacgLoader(novelId: Long = 0) : SearchableLoader(
     LoaderRepository.SfacgLoaderUID, "SfacgAPP"
 ) {
 
@@ -14,6 +19,7 @@ open class SfacgLoader(novelId: Long = 0) : SearchableLoader(
     }
 
     private val api = SfacgAPI()
+    private var tocCache: TocBean? = null
 
     /**
      * 变量link优先于o变量
@@ -30,12 +36,27 @@ open class SfacgLoader(novelId: Long = 0) : SearchableLoader(
     }
 
     override fun search(keyword: String): List<SearchResultItem> {
-        TODO("Not yet implemented")
+        val searchResultJson = api.search(keyword)
+        val list = ArrayList<SearchResultItem>()
+        searchResultJson.data.novels.forEach {
+            list.add(
+                SearchResultItem(uid).apply {
+                    title = it.novelName
+                    author = it.authorName
+                    link = it.novelId.toString()
+                    coverUrl = it.novelCover
+                    intro = it.expand.intro
+                    charCount = it.charCount
+                }
+            )
+        }
+        return list
     }
 
-    override fun initToc(): BookData {
+    override fun requestToc(): BookData {
         val book = BookData()
         val novelId = getNovelId()
+        Log.d(TAG, "initToc: $novelId")
         val novelHomeJson = api.getNovelHomeJson(novelId)
         book.apply {                                // 加载小说基本信息
             o = novelHomeJson.data.novelId
@@ -53,13 +74,42 @@ open class SfacgLoader(novelId: Long = 0) : SearchableLoader(
             }
         }
         chapListJson.data
+        Log.d(TAG, "initToc: ${book.chapCount}")
         return book
     }
 
-    override fun loadChapter(chapData: ChapData) {
+    override fun requestChap(chapData: ChapData) {
         val chapIndex = chapData.o as Int
         val chapContentJson = api.getChapContentJson(chapIndex.toLong())
         chapData.content = chapContentJson.data.expand.content
     }
 
+    override fun hasTocCache(): Boolean {
+        val item = BookRepository.queryOnBookshelf(uid, getNovelId().toString()) ?: return false
+        tocCache = FileManager.readTocFile(item.uid)
+        tocCache ?: return false
+        if (tocCache!!.chapList.size == 0)
+            return false
+        return true
+    }
+
+    override fun requestTocFromCache(): BookData {
+        val bookData = BookData()
+        Log.d(TAG, "requestTocFromCache: called")
+        synchronized(tocCache!!) {
+            tocCache!!.chapList.forEach {
+                bookData.addChapter(
+                    ChapData(it.chapIndex, it.title).apply {
+                        o = it.link.toInt()
+                    }
+                )
+            }
+        }
+        return bookData
+    }
+
+    override fun hasChapCache(chapData: ChapData): Boolean {
+
+        return super.hasChapCache(chapData)
+    }
 }

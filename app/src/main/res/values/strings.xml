@@ -1,5 +1,5 @@
 <resources>
-    <!--软件名称-->
+    <!--应用名称-->
     <string name="app_name">书源</string>
 
     <!--主页导航栏文字-->
@@ -12,18 +12,24 @@
     <string name="bookshelf_filter">筛选</string>
     <string name="bookshelf_filter_title">书架筛选</string>
 
-    <!--SearchActivity的相关字符串-->
+    <!--SearchActivity-->
     <string name="cancel">取消</string>
 
-    <!--ReadActivity相关字符串-->
+    <!--ReadActivity-->
     <string name="toc">目录</string>
     <string name="detail">详情</string>
-    <string name="landscape">切换屏幕方向</string>
+    <string name="landscape">横屏</string>
+    <string name="portrait">竖屏</string>
     <string name="setting">设置</string>
     <string name="font_setting">字体设置</string>
     <string name="reduce_font_size">A-</string>
     <string name="increase_font_size">A+</string>
     <string name="revert_font_size">A</string>
+
+    <!--NovelHomeActivity-->
+    <string name="add_book_btn_text">加入书架</string>
+    <string name="read_book_btn_text">立即阅读</string>
+    <string name="download_btn_text">缓存</string>
 
     <!--描述类字符串-->
     <string name="des_book_cover">书籍封面</string>
@@ -33,5 +39,6 @@
     <string name="des_bookshelf_menu_btn">书架菜单按钮</string>
     <string name="des_prev_chap">切换上一章</string>
     <string name="des_next_chap">切换下一章</string>
+    <string name="des_novel_cover">小说封面</string>
 
 </resources>

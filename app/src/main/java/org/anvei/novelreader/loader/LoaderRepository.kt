@@ -8,11 +8,14 @@ object LoaderRepository {
     const val NativeLoaderUID = 1
     const val SfacgLoaderUID = 2
 
-    private val nativeLoader by lazy {  }
+    private val nativeLoader by lazy { NativeLoader() }
     private val sfacgLoader by lazy { SfacgLoader() }
 
     fun getLoader(loadUID: Int): BaseBookLoader {
         return when (loadUID) {
+            NativeLoaderUID -> {
+                nativeLoader
+            }
             SfacgLoaderUID -> {
                 sfacgLoader
             }

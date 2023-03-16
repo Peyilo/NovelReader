@@ -27,7 +27,7 @@ package org.klee.readview.loader
 import org.klee.readview.entities.BookData
 import org.klee.readview.entities.ChapData
 
-class TextLoader(private val text: String) : BookLoader {
+class DefaultTextLoader(private val text: String) : BookLoader {
 
     override fun initToc(): BookData {
         val bookData = BookData()           // 将整个字符串作为一个无标题的章节

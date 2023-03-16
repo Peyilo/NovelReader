@@ -39,8 +39,8 @@ import org.klee.readview.entities.ChapterStatus
 import org.klee.readview.entities.IndexBean
 import org.klee.readview.delegate.PageDirection
 import org.klee.readview.loader.BookLoader
-import org.klee.readview.loader.NativeLoader
-import org.klee.readview.loader.TextLoader
+import org.klee.readview.loader.DefaultNativeLoader
+import org.klee.readview.loader.DefaultTextLoader
 import org.klee.readview.utils.invisible
 import org.klee.readview.utils.visible
 import org.klee.readview.widget.api.ReadViewCallback
@@ -334,7 +334,7 @@ class ReadView(context: Context, attributeSet: AttributeSet?) :
         @IntRange(from = 1) chapIndex: Int = 1,
         @IntRange(from = 1) pageIndex: Int = 1
     ) {
-        openBook(NativeLoader(file), chapIndex, pageIndex)
+        openBook(DefaultNativeLoader(file), chapIndex, pageIndex)
     }
 
     /**
@@ -346,7 +346,7 @@ class ReadView(context: Context, attributeSet: AttributeSet?) :
         text: String,
         @IntRange(from = 1) pageIndex: Int = 1
     ) {
-        openBook(TextLoader(text), 1, pageIndex)
+        openBook(DefaultTextLoader(text), 1, pageIndex)
     }
 
     /**

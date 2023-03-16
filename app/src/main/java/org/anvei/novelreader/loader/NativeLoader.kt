@@ -1,15 +1,17 @@
 package org.anvei.novelreader.loader
 
+import org.anvei.novelreader.App
 import org.klee.readview.entities.BookData
+import org.klee.readview.loader.DefaultNativeLoader
+import java.io.File
 
-class NativeLoader() : BaseBookLoader(
+class NativeLoader : BaseBookLoader(
     LoaderRepository.NativeLoaderUID, "Native") {
 
-    private val loader = org.klee.readview.loader.NativeLoader()
+    private val loader = DefaultNativeLoader()
 
-    override fun initToc(): BookData {
-        require(link != null)
-        TODO()
+    override fun requestToc(): BookData {
+        loader.file = File(App.getContext().externalCacheDir, link!!)
+        return loader.initToc()
     }
-
 }

@@ -3,4 +3,6 @@
     <dimen name="status_bar_height">30dp</dimen>
 
     <dimen name="bookshelf_item_ic_size">15dp</dimen>
+
+    <dimen name="read_bottom_ic_size">28dp</dimen>
 </resources>

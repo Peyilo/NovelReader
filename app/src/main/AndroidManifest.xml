@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NovelReader"
         tools:targetApi="31">
+        <activity android:name=".ui.data.DataActivity"
+            android:exported="false"
+            android:label="数据库"/>
         <activity
             android:name=".activity.SearchResultActivity"
             android:exported="false">
@@ -26,7 +29,7 @@
             android:name=".activity.NovelHomeActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.ReadActivity"
+            android:name=".ui.read.ReadActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
