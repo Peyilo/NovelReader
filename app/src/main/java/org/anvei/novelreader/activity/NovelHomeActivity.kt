@@ -63,13 +63,22 @@ class NovelHomeActivity : BaseActivity() {
         likeBtn.setOnClickListener {
             // 先在数据库中查询
             Thread {
-                if (!BookRepository.onBookshelf(bookItem.loaderUID, bookItem.link)) {
+                val query = BookRepository.query(bookItem.loaderUID, bookItem.link)
+                if (query == null) {
+                    // 没有阅读过、也不在书架中
                     bookItem.onBookshelf = true
                     bookItem.addTime = Date(System.currentTimeMillis())
                     BookRepository.addBookInBookshelf(bookItem)
                     toast("加入书架成功！")
                 } else {
-                    toast("已经在书架中！")
+                    if (query.onBookshelf) {
+                        toast("已经在书架中！")
+                    } else {
+                        query.onBookshelf = true
+                        query.addTime = Date(System.currentTimeMillis())
+                        BookRepository.updateBook(query)
+                        toast("加入书架成功！")
+                    }
                 }
             }.start()
         }

@@ -25,11 +25,14 @@ class DataActivity : BaseActivity(hideToolbar = false, fullScreen = false,
         adapter = BookItemAdapter(ArrayList())
         recycler.adapter = adapter
         recycler.layoutManager = LinearLayoutManager(this)
+        refresh()
     }
 
-    override fun onStart() {
-        super.onStart()
-        refresh()
+    override fun onRestart() {
+        super.onRestart()
+        recycler.postDelayed({
+            refresh()
+        }, 800)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

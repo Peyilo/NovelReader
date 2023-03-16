@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import org.anvei.novelreader.R
 import org.anvei.novelreader.database.entity.BookItem
 import org.anvei.novelreader.ui.read.ReadActivity
+import java.util.Calendar
 
 class BookItemAdapter(var list: MutableList<BookItem>) : RecyclerView.Adapter<BookItemAdapter.Holder>() {
 
@@ -53,7 +54,7 @@ class BookItemAdapter(var list: MutableList<BookItem>) : RecyclerView.Adapter<Bo
             holder.cacheDir.text = "cacheDir: $cacheDir"
             holder.pageIndex.text = "pageIndex: $pageIndex"
             holder.chapIndex.text = "chapIndex: $chapIndex"
-            holder.firstReadTime.text = "firstReadTime: $firstReadTime"
+            holder.firstReadTime.text = "firstReadTime: ${firstReadTime}"
             holder.lastReadTime.text = "lastReadTime: $lastReadTime"
             holder.readTime.text = "readTime: ${readTime}s"
             holder.addTime.text = "addTime: $addTime"
