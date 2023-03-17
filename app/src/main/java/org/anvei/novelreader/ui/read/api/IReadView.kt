@@ -8,6 +8,4 @@ interface IReadView {
 
     fun getCurPageIndex(): Int
 
-    fun getTocBean(): TocBean
-
 }

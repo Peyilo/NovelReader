@@ -90,10 +90,12 @@ class NovelHomeActivity : BaseActivity() {
                     bookItem.hasHistory = true
                     bookItem.firstReadTime = Date(System.currentTimeMillis())
                     BookRepository.addBookInBookshelf(bookItem)
+                } else if (!item.hasHistory){
+                    item.hasHistory = true
+                    item.firstReadTime = Date(System.currentTimeMillis())
+                    BookRepository.updateBook(bookItem)
                 }
-                runOnUiThread {
-                    ReadActivity.start(this, bookItem.loaderUID, bookItem.link!!)
-                }
+                ReadActivity.start(this, bookItem.loaderUID, bookItem.link!!)
             }.start()
         }
         downloadBtn.setOnClickListener {

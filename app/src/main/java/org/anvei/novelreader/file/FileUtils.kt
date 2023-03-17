@@ -5,6 +5,10 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.io.OutputStream
+import java.io.OutputStreamWriter
 
 object FileUtils {
 
@@ -28,4 +32,13 @@ object FileUtils {
         writer.write(string)
         writer.close()
     }
+
+    fun writeStream(os: OutputStream, `is`: InputStream) {
+        val byte = ByteArray(1024)
+        while (true) {
+            if (`is`.read(byte) == 0) break
+            os.write(byte)
+        }
+    }
+
 }

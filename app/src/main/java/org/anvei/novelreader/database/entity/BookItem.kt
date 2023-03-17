@@ -16,7 +16,6 @@ data class BookItem(
     @PrimaryKey(autoGenerate = true)        var uid: Int = 0,
     @ColumnInfo(name = "loader_uid")        var loaderUID: Int = 0,                 // 加载器UID
     @ColumnInfo(name = "cover_link")        var coverLink: String? = null,          // 封面链接
-    @ColumnInfo(name = "cache_dir")         var cacheDir: String? = null,           // 缓存文件夹
     @ColumnInfo(name = "page_index")        var pageIndex: Int = 1,                 // 阅读进度
     @ColumnInfo(name = "chap_index")        var chapIndex: Int = 1,                 // 阅读进度
     @ColumnInfo(name = "first_read_time")   var firstReadTime: Date? = null,        // 第一次阅读时间

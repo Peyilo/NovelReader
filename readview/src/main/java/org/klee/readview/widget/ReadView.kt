@@ -307,12 +307,12 @@ class ReadView(context: Context, attributeSet: AttributeSet?) :
         startTask {
             val initResult = readData.requestInitToc()        // load toc
             if (initResult) {
-                readData.requestLoadChapters(chapIndex, alwaysLoad = true)
+                readData.requestLoadChapters(curChapIndex, alwaysLoad = true)
                 // 章节分页依赖于view的宽高、所以需要在post()中执行
                 // 而post()依赖于window的attach状态，所以需要等待attached置为true
                 while (!attached) {}
                 post {
-                    readData.requestSplitChapters(chapIndex) {
+                    readData.requestSplitChapters(curChapIndex) {
                         refreshAllPages()
                         Log.d(TAG, "openBook: curPageCount = ${it.pageCount}")
                     }

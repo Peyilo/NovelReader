@@ -7,12 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import org.anvei.novelreader.R
-import org.anvei.novelreader.ui.read.ReadActivity
 import org.anvei.novelreader.database.entity.BookItem
+import org.anvei.novelreader.database.repository.BookRepository
+import org.anvei.novelreader.ui.read.ReadActivity
+import java.sql.Date
 
 class BookshelfAdapter(val context: Context,var books: MutableList<BookItem>? = null)
     : RecyclerView.Adapter<BookshelfAdapter.Holder>() {
@@ -41,8 +42,14 @@ class BookshelfAdapter(val context: Context,var books: MutableList<BookItem>? = 
         holder.view.setOnClickListener {
             if (!book.hasHistory) {
                 book.hasHistory = true
+                book.firstReadTime = Date(System.currentTimeMillis())
+                Thread {
+                    BookRepository.updateBook(book)
+                    ReadActivity.start(context, book.loaderUID, book.link!!)
+                }.start()
+            } else {
+                ReadActivity.start(context, book.loaderUID, book.link!!)
             }
-            ReadActivity.start(context, book.loaderUID, book.link!!)
         }
     }
 

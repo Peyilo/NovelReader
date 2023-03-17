@@ -1,7 +1,6 @@
 package org.anvei.novelreader.ui.read
 
 import org.anvei.novelreader.database.repository.BookRepository
-import org.anvei.novelreader.file.FileManager
 import org.anvei.novelreader.ui.read.api.IReadModel
 import org.anvei.novelreader.ui.read.api.IReadPresenter
 import org.anvei.novelreader.ui.read.api.IReadView
@@ -28,23 +27,13 @@ class ReadPresenter(
         }.start()
     }
 
-    /**
-     * 刷新书籍目录缓存
-     */
-    private fun upBookTocCache() {
-        val tocBean = view.getTocBean()
-        Thread {
-            FileManager.writeTocFile(tocBean)
-        }.start()
-    }
-
     fun refreshToc() {
 
     }
 
     override fun onExit() {
         upBookItem()
-        upBookTocCache()
+        // upBookTocCache()
     }
 
     private var startTime = 0

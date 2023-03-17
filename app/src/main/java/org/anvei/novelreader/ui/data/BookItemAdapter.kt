@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import org.anvei.novelreader.R
 import org.anvei.novelreader.database.entity.BookItem
 import org.anvei.novelreader.ui.read.ReadActivity
-import java.util.Calendar
 
 class BookItemAdapter(var list: MutableList<BookItem>) : RecyclerView.Adapter<BookItemAdapter.Holder>() {
 
@@ -22,7 +21,6 @@ class BookItemAdapter(var list: MutableList<BookItem>) : RecyclerView.Adapter<Bo
         val loaderUID: TextView = view.findViewById(R.id.data_loader_uid)
         val link: TextView = view.findViewById(R.id.data_link)
         val coverLink: TextView = view.findViewById(R.id.data_cover_link)
-        val cacheDir: TextView = view.findViewById(R.id.data_cache_dir)
         val pageIndex: TextView = view.findViewById(R.id.data_page_index)
         val chapIndex: TextView = view.findViewById(R.id.data_chap_index)
         val firstReadTime: TextView = view.findViewById(R.id.data_first_read_time)
@@ -51,7 +49,6 @@ class BookItemAdapter(var list: MutableList<BookItem>) : RecyclerView.Adapter<Bo
             holder.loaderUID.text = "loaderUID: $loaderUID"
             holder.link.text = "link: $link"
             holder.coverLink.text = "coverLink: $coverLink"
-            holder.cacheDir.text = "cacheDir: $cacheDir"
             holder.pageIndex.text = "pageIndex: $pageIndex"
             holder.chapIndex.text = "chapIndex: $chapIndex"
             holder.firstReadTime.text = "firstReadTime: ${firstReadTime}"

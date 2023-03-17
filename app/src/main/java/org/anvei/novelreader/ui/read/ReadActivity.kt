@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.MotionEvent
 import android.widget.TextView
 import androidx.core.view.GravityCompat
@@ -16,6 +17,7 @@ import org.anvei.novelreader.activity.BaseActivity
 import org.anvei.novelreader.database.entity.BookItem
 import org.anvei.novelreader.database.repository.BookRepository
 import org.anvei.novelreader.databinding.ActivityReadBinding
+import org.anvei.novelreader.file.NovelCacheManager
 import org.anvei.novelreader.file.bean.ChapBean
 import org.anvei.novelreader.file.bean.TocBean
 import org.anvei.novelreader.loader.BaseBookLoader
@@ -34,7 +36,7 @@ import org.klee.readview.widget.ReadView
 import org.klee.readview.widget.api.ReadViewCallback
 
 private const val TAG = "ReadViewTest"
-class ReadActivity : BaseActivity(), IReadView {
+class ReadActivity : BaseActivity(), IReadView, ReadViewCallback {
 
     private lateinit var binding: ActivityReadBinding
 
@@ -106,39 +108,7 @@ class ReadActivity : BaseActivity(), IReadView {
                 R.id.page_header, R.id.page_footer
             )
         }
-        readView.setCallback(object : ReadViewCallback {
-            // 小说加载完成以后，刷新章节列表
-            override fun onTocInitSuccess(book: BookData) {
-                runOnUiThread {
-                    val recyclerView = drawer.findViewById<RecyclerView>(R.id.toc_recycler)
-                    recyclerView.adapter = ChapterAdapter(book).apply {
-                        setOnItemClickListener {
-                            readView.setProcess(it)
-                            drawer.closeDrawer(GravityCompat.START)
-                        }
-                    }
-                    recyclerView.layoutManager = LinearLayoutManager(this@ReadActivity)
-                }
-                bookItem = BookRepository.query(loader.uid, loader.link)
-                readView.setProcess(bookItem.chapIndex, bookItem.pageIndex)
-                bookItemInitialized = true
-                presenter.startReadTimer()
-            }
-
-            // 绑定视图
-            override fun onUpdatePage(convertView: PageView, newChap: ChapData, newPageIndex: Int) {
-                val header = convertView.header!! as TextView
-                header.text = newChap.title
-                val process =
-                    convertView.footer!!.findViewById(R.id.page_footer_process) as TextView
-                process.text = if (newChap.status == ChapterStatus.FINISHED) {
-                    "${newPageIndex}/${newChap.pageCount}"
-                } else {
-                    "loading"
-                }
-            }
-
-        })
+        readView.setCallback(this)
         readView.setOnClickRegionListener { xPercent, _ ->
             return@setOnClickRegionListener when (xPercent) {
                 in 0..30 -> {
@@ -265,8 +235,49 @@ class ReadActivity : BaseActivity(), IReadView {
         return super.dispatchTouchEvent(ev)
     }
 
-    override fun getTocBean(): TocBean {
-        val book = readView.book
+    override fun onTocInitSuccess(book: BookData) {
+        runOnUiThread {
+            val recyclerView = drawer.findViewById<RecyclerView>(R.id.toc_recycler)
+            recyclerView.adapter = ChapterAdapter(book).apply {
+                setOnItemClickListener {
+                    readView.setProcess(it)
+                    drawer.closeDrawer(GravityCompat.START)
+                }
+            }
+            recyclerView.layoutManager = LinearLayoutManager(this@ReadActivity)
+        }
+        bookItem = BookRepository.query(loader.loaderUID, loader.link)
+        readView.setProcess(bookItem.chapIndex, bookItem.pageIndex)
+        bookItemInitialized = true
+        presenter.startReadTimer()
+        // 更新目录缓存
+        Thread {
+            NovelCacheManager.writeTocFile(generateTocBean(book))
+        }.start()
+    }
+
+    override fun onUpdatePage(convertView: PageView, newChap: ChapData, newPageIndex: Int) {
+        val header = convertView.header!! as TextView
+        header.text = newChap.title
+        val process =
+            convertView.footer!!.findViewById(R.id.page_footer_process) as TextView
+        process.text = if (newChap.status == ChapterStatus.FINISHED) {
+            "${newPageIndex}/${newChap.pageCount}"
+        } else {
+            "loading"
+        }
+    }
+
+    override fun onLoadChap(chap: ChapData, success: Boolean) {
+        if (success && !TextUtils.isEmpty(chap.content)) {
+            // 更新章节内容缓存
+            Thread {
+                NovelCacheManager.writeContent(bookItem.uid, chap.o.toString(), chap.content!!)
+            }.start()
+        }
+    }
+
+    private fun generateTocBean(book: BookData): TocBean {
         val tocBean = TocBean().apply {
             title = bookItem.title
             author = bookItem.author

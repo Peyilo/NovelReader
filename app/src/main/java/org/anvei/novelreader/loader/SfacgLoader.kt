@@ -3,8 +3,7 @@ package org.anvei.novelreader.loader
 import android.util.Log
 import org.anvei.novel.api.SfacgAPI
 import org.anvei.novelreader.database.repository.BookRepository
-import org.anvei.novelreader.file.FileManager
-import org.anvei.novelreader.file.bean.TocBean
+import org.anvei.novelreader.file.NovelCacheManager
 import org.anvei.novelreader.loader.bean.SearchResultItem
 import org.klee.readview.entities.BookData
 import org.klee.readview.entities.ChapData
@@ -19,7 +18,6 @@ class SfacgLoader(novelId: Long = 0) : SearchableLoader(
     }
 
     private val api = SfacgAPI()
-    private var tocCache: TocBean? = null
 
     /**
      * 变量link优先于o变量
@@ -40,7 +38,7 @@ class SfacgLoader(novelId: Long = 0) : SearchableLoader(
         val list = ArrayList<SearchResultItem>()
         searchResultJson.data.novels.forEach {
             list.add(
-                SearchResultItem(uid).apply {
+                SearchResultItem(loaderUID).apply {
                     title = it.novelName
                     author = it.authorName
                     link = it.novelId.toString()
@@ -85,31 +83,32 @@ class SfacgLoader(novelId: Long = 0) : SearchableLoader(
     }
 
     override fun hasTocCache(): Boolean {
-        val item = BookRepository.queryOnBookshelf(uid, getNovelId().toString()) ?: return false
-        tocCache = FileManager.readTocFile(item.uid)
-        tocCache ?: return false
-        if (tocCache!!.chapList.size == 0)
-            return false
-        return true
+        val item = BookRepository.queryOnBookshelf(loaderUID, getNovelId().toString()) ?: return false
+        return NovelCacheManager.tocFileExist(item.uid)
     }
 
     override fun requestTocFromCache(): BookData {
+        val item = BookRepository.queryOnBookshelf(loaderUID, getNovelId().toString())!!
+        val tocCache = NovelCacheManager.readTocFile(item.uid)!!
         val bookData = BookData()
-        Log.d(TAG, "requestTocFromCache: called")
-        synchronized(tocCache!!) {
-            tocCache!!.chapList.forEach {
-                bookData.addChapter(
-                    ChapData(it.chapIndex, it.title).apply {
-                        o = it.link.toInt()
-                    }
-                )
-            }
+        tocCache.chapList.forEach {
+            bookData.addChapter(
+                ChapData(it.chapIndex, it.title).apply {
+                    o = it.link.toInt()
+                }
+            )
         }
         return bookData
     }
 
     override fun hasChapCache(chapData: ChapData): Boolean {
+        val item = BookRepository.queryOnBookshelf(loaderUID, getNovelId().toString()) ?: return false
+        return NovelCacheManager.contentFileExist(item.uid, chapData.o.toString())
+    }
 
-        return super.hasChapCache(chapData)
+    override fun requestChapFromCache(chapData: ChapData) {
+        val item = BookRepository.queryOnBookshelf(loaderUID, getNovelId().toString())!!
+        chapData.content = NovelCacheManager.readContent(item.uid, chapData.o.toString())
+        Log.d(TAG, "requestChapFromCache: ${chapData.title}")
     }
 }
